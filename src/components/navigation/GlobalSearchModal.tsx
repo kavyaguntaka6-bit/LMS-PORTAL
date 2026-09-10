@@ -6,12 +6,9 @@ import {
   BookOpen,
   Layers,
   Code2,
-  Terminal,
   Briefcase,
-  Award,
   Calendar,
-  X,
-  ArrowRight
+  X
 } from 'lucide-react';
 import { mockPracticeProblems, mockProjects, mockJobOpportunities, mockWorkshops, mockHackathons } from '../../services/mockData';
 import { Badge } from '../ui/Badge';
@@ -19,7 +16,6 @@ import { Badge } from '../ui/Badge';
 export const GlobalSearchModal: React.FC = () => {
   const { isSearchOpen, setIsSearchOpen, courses, learningPaths } = useLMS();
   const [query, setQuery] = useState('');
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const navigate = useNavigate();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -27,7 +23,6 @@ export const GlobalSearchModal: React.FC = () => {
     if (isSearchOpen) {
       setTimeout(() => inputRef.current?.focus(), 50);
       setQuery('');
-      setSelectedIndex(0);
     }
   }, [isSearchOpen]);
 
@@ -74,41 +69,41 @@ export const GlobalSearchModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-24 p-4 overflow-y-auto bg-black/40 backdrop-blur-[2px]">
-      <div className="relative w-full max-w-2xl bg-white border border-tyc-border rounded-xl shadow-modal overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-16 sm:pt-24 p-4 overflow-y-auto bg-black/60 dark:bg-black/80 backdrop-blur-sm">
+      <div className="relative w-full max-w-2xl bg-white dark:bg-[#0D121F] border border-slate-200 dark:border-slate-800 rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150 text-slate-900 dark:text-white">
         {/* Search input header */}
-        <div className="flex items-center px-4 py-3 border-b border-tyc-border gap-3">
-          <Search className="w-5 h-5 text-tyc-muted shrink-0" />
+        <div className="flex items-center px-5 py-4 border-b border-slate-100 dark:border-slate-800 gap-3">
+          <Search className="w-5 h-5 text-slate-400 shrink-0" />
           <input
             ref={inputRef}
             type="text"
             placeholder="Search courses, learning paths, practice, projects, career..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full text-sm text-tyc-text placeholder-tyc-muted/60 bg-transparent focus:outline-none"
+            className="w-full text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 bg-transparent focus:outline-none"
           />
           {query && (
-            <button onClick={() => setQuery('')} className="text-tyc-muted hover:text-tyc-text p-1">
+            <button onClick={() => setQuery('')} className="text-slate-400 hover:text-slate-900 dark:hover:text-white p-1">
               <X className="w-4 h-4" />
             </button>
           )}
-          <kbd className="hidden sm:inline-block text-[10px] font-semibold text-tyc-muted bg-tyc-bg border border-tyc-border px-2 py-0.5 rounded">
+          <kbd className="hidden sm:inline-block text-[10px] font-semibold text-slate-500 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded">
             ESC
           </kbd>
         </div>
 
         {/* Results area */}
-        <div className="max-h-[60vh] overflow-y-auto p-3 space-y-4">
+        <div className="max-h-[60vh] overflow-y-auto p-4 space-y-4">
           {totalResultsCount === 0 && query ? (
-            <div className="py-12 text-center text-xs text-tyc-muted">
-              No results found for &ldquo;<span className="font-semibold text-tyc-text">{query}</span>&rdquo;. Try searching for &ldquo;React&rdquo;, &ldquo;Python&rdquo;, &ldquo;AI&rdquo;, or &ldquo;SQL&rdquo;.
+            <div className="py-12 text-center text-xs text-slate-500 dark:text-slate-400">
+              No results found for &ldquo;<span className="font-semibold text-slate-900 dark:text-white">{query}</span>&rdquo;. Try searching for &ldquo;React&rdquo;, &ldquo;Python&rdquo;, &ldquo;AI&rdquo;, or &ldquo;SQL&rdquo;.
             </div>
           ) : null}
 
           {/* Quick Suggestions if query is empty */}
           {!query && (
             <div className="space-y-3 p-2">
-              <div className="text-[11px] font-semibold text-tyc-muted uppercase tracking-wider">
+              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                 Popular Searches
               </div>
               <div className="flex flex-wrap gap-2">
@@ -116,7 +111,7 @@ export const GlobalSearchModal: React.FC = () => {
                   <button
                     key={term}
                     onClick={() => setQuery(term)}
-                    className="text-xs px-2.5 py-1 bg-tyc-bg hover:bg-gray-200 border border-tyc-border rounded-lg text-tyc-text transition-colors"
+                    className="text-xs px-3 py-1.5 bg-slate-100 dark:bg-[#161F30] hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 rounded-xl text-slate-700 dark:text-slate-200 transition-colors font-medium"
                   >
                     {term}
                   </button>
@@ -127,78 +122,27 @@ export const GlobalSearchModal: React.FC = () => {
 
           {/* Courses */}
           {filteredCourses.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 px-2 mb-1.5 text-[11px] font-semibold text-tyc-muted uppercase tracking-wider">
-                <BookOpen className="w-3.5 h-3.5 text-tyc-green" />
-                <span>Courses</span>
+            <div className="space-y-2">
+              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">
+                Courses
               </div>
               <div className="space-y-1">
                 {filteredCourses.map((c) => (
                   <div
                     key={c.id}
                     onClick={() => handleSelect(`/courses/${c.slug || c.id}`)}
-                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-tyc-bg cursor-pointer transition-colors"
+                    className="p-3 rounded-2xl bg-slate-50 dark:bg-[#161F30] hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer flex items-center justify-between gap-3 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-gray-100 border border-tyc-border overflow-hidden shrink-0">
-                        <img src={c.thumbnail} alt="" className="w-full h-full object-cover" />
+                      <div className="p-2 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400">
+                        <BookOpen className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-semibold text-tyc-text">{c.title}</div>
-                        <div className="text-[11px] text-tyc-muted">{c.instructor.name} • {c.durationHours}h • {c.difficulty}</div>
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">{c.title}</h4>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">{c.category} &bull; {c.durationHours}h</span>
                       </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-tyc-muted" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Learning Paths */}
-          {filteredPaths.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 px-2 mb-1.5 text-[11px] font-semibold text-tyc-muted uppercase tracking-wider">
-                <Layers className="w-3.5 h-3.5 text-tyc-orange" />
-                <span>Career Learning Paths</span>
-              </div>
-              <div className="space-y-1">
-                {filteredPaths.map((p) => (
-                  <div
-                    key={p.id}
-                    onClick={() => handleSelect(`/learning-paths`)}
-                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-tyc-bg cursor-pointer transition-colors"
-                  >
-                    <div>
-                      <div className="text-xs font-semibold text-tyc-text">{p.title}</div>
-                      <div className="text-[11px] text-tyc-muted">{p.role} • {p.durationMonths} months • {p.coursesCount} courses</div>
-                    </div>
-                    <Badge variant="orange" size="sm">Roadmap</Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Projects */}
-          {filteredProjects.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 px-2 mb-1.5 text-[11px] font-semibold text-tyc-muted uppercase tracking-wider">
-                <Code2 className="w-3.5 h-3.5 text-tyc-green" />
-                <span>Industry Projects</span>
-              </div>
-              <div className="space-y-1">
-                {filteredProjects.map((prj) => (
-                  <div
-                    key={prj.id}
-                    onClick={() => handleSelect(`/projects/${prj.slug || prj.id}`)}
-                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-tyc-bg cursor-pointer transition-colors"
-                  >
-                    <div>
-                      <div className="text-xs font-semibold text-tyc-text">{prj.title}</div>
-                      <div className="text-[11px] text-tyc-muted">{prj.difficulty} • ~{prj.estimatedHours} hrs • {prj.skills.slice(0, 3).join(', ')}</div>
-                    </div>
-                    <Badge variant="green" size="sm">Project</Badge>
+                    <Badge variant="green" size="sm">Course</Badge>
                   </div>
                 ))}
               </div>
@@ -207,62 +151,32 @@ export const GlobalSearchModal: React.FC = () => {
 
           {/* Practice */}
           {filteredProblems.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 px-2 mb-1.5 text-[11px] font-semibold text-tyc-muted uppercase tracking-wider">
-                <Terminal className="w-3.5 h-3.5 text-blue-600" />
-                <span>Practice Engine</span>
+            <div className="space-y-2">
+              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider px-2">
+                Practice Problems
               </div>
               <div className="space-y-1">
-                {filteredProblems.map((prob) => (
+                {filteredProblems.map((p) => (
                   <div
-                    key={prob.id}
-                    onClick={() => handleSelect(`/coding`)}
-                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-tyc-bg cursor-pointer transition-colors"
+                    key={p.id}
+                    onClick={() => handleSelect('/practice')}
+                    className="p-3 rounded-2xl bg-slate-50 dark:bg-[#161F30] hover:bg-slate-100 dark:hover:bg-slate-800/80 cursor-pointer flex items-center justify-between gap-3 transition-colors"
                   >
-                    <div>
-                      <div className="text-xs font-semibold text-tyc-text">{prob.title}</div>
-                      <div className="text-[11px] text-tyc-muted">{prob.category} • {prob.difficulty} • {prob.accuracyRate}% accuracy</div>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-xl bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-400">
+                        <Code2 className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white">{p.title}</h4>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">{p.category} &bull; Verified Problem</span>
+                      </div>
                     </div>
-                    <ArrowRight className="w-4 h-4 text-tyc-muted" />
+                    <Badge variant="green" size="sm">{p.difficulty}</Badge>
                   </div>
                 ))}
               </div>
             </div>
           )}
-
-          {/* Jobs & Internships */}
-          {filteredJobs.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 px-2 mb-1.5 text-[11px] font-semibold text-tyc-muted uppercase tracking-wider">
-                <Briefcase className="w-3.5 h-3.5 text-purple-600" />
-                <span>Career Opportunities</span>
-              </div>
-              <div className="space-y-1">
-                {filteredJobs.map((j) => (
-                  <div
-                    key={j.id}
-                    onClick={() => handleSelect(`/career`)}
-                    className="flex items-center justify-between p-2.5 rounded-lg hover:bg-tyc-bg cursor-pointer transition-colors"
-                  >
-                    <div>
-                      <div className="text-xs font-semibold text-tyc-text">{j.title}</div>
-                      <div className="text-[11px] text-tyc-muted">{j.company} • {j.salaryOrStipend} • {j.type}</div>
-                    </div>
-                    <Badge variant="gray" size="sm">Apply</Badge>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer shortcuts */}
-        <div className="px-4 py-2.5 bg-tyc-bg border-t border-tyc-border flex items-center justify-between text-[11px] text-tyc-muted">
-          <div className="flex items-center gap-3">
-            <span>Press <kbd className="font-semibold text-tyc-text">ESC</kbd> to exit</span>
-            <span>Click any item to navigate</span>
-          </div>
-          <span className="font-medium text-tyc-green">TYC Search Index v2.4</span>
         </div>
       </div>
     </div>

@@ -6,7 +6,6 @@ import {
   Award,
   Code2,
   Share2,
-  Edit3,
   ExternalLink,
   Flame,
   Sparkles,
@@ -40,37 +39,33 @@ export const StudentPortfolioPage: React.FC = () => {
             <Share2 className="w-3.5 h-3.5 mr-1" />
             Share Profile
           </Button>
-          <Button variant="primary" size="sm" className="text-xs">
-            <Edit3 className="w-3.5 h-3.5 mr-1" />
-            Edit Profile
-          </Button>
         </div>
       </div>
 
       {/* Main Profile Header Card */}
-      <Card className="p-6 sm:p-8 shadow-subtle bg-white border border-tyc-border space-y-6">
+      <Card className="p-6 sm:p-8 shadow-sm dark:shadow-xl bg-white dark:bg-[#0D121F] border border-slate-200/80 dark:border-slate-800 space-y-6">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 text-center sm:text-left">
             <img
               src={profileUser.avatar}
               alt={profileUser.name}
-              className="w-24 h-24 rounded-2xl object-cover border-2 border-tyc-green shadow-md"
+              className="w-24 h-24 rounded-2xl object-cover border-2 border-emerald-500 shadow-md"
             />
             <div className="space-y-1.5">
               <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
-                <h1 className="text-2xl font-bold text-tyc-text">{profileUser.name}</h1>
+                <h1 className="text-2xl font-black text-slate-900 dark:text-white">{profileUser.name}</h1>
                 <Badge variant="green" size="sm" dot>TYC Verified Developer</Badge>
               </div>
-              <p className="text-xs font-semibold text-tyc-green">
+              <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">
                 Target Role: {profileUser.careerGoal}
               </p>
-              <p className="text-xs text-tyc-muted max-w-xl leading-relaxed">
+              <p className="text-xs text-slate-600 dark:text-slate-400 max-w-xl leading-relaxed">
                 {profileUser.bio}
               </p>
-              <div className="flex items-center justify-center sm:justify-start gap-3 pt-2 text-xs text-tyc-muted">
-                <span>{profileUser.educationLevel}</span>
+              <div className="flex items-center justify-center sm:justify-start gap-3 pt-2 text-xs text-slate-500 dark:text-slate-400">
+                <span>{profileUser.college || 'Stanford Institute of Technology'}</span>
                 <span>&bull;</span>
-                <span>Member since {profileUser.joinedDate}</span>
+                <span>{profileUser.branch || 'Computer Science'} ({profileUser.year || '3rd Year'})</span>
               </div>
             </div>
           </div>
@@ -78,17 +73,17 @@ export const StudentPortfolioPage: React.FC = () => {
           {/* Social Links */}
           <div className="flex items-center justify-center gap-2 shrink-0">
             {profileUser.githubUrl && (
-              <a href={profileUser.githubUrl} target="_blank" rel="noreferrer" className="p-2.5 rounded-xl border border-tyc-border hover:bg-tyc-bg text-tyc-text transition-colors">
+              <a href={profileUser.githubUrl} target="_blank" rel="noreferrer" className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors">
                 <GithubIcon className="w-4 h-4" />
               </a>
             )}
             {profileUser.linkedinUrl && (
-              <a href={profileUser.linkedinUrl} target="_blank" rel="noreferrer" className="p-2.5 rounded-xl border border-tyc-border hover:bg-tyc-bg text-blue-600 transition-colors">
+              <a href={profileUser.linkedinUrl} target="_blank" rel="noreferrer" className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-blue-600 transition-colors">
                 <LinkedinIcon className="w-4 h-4" />
               </a>
             )}
             {profileUser.portfolioUrl && (
-              <a href={profileUser.portfolioUrl} target="_blank" rel="noreferrer" className="p-2.5 rounded-xl border border-tyc-border hover:bg-tyc-bg text-tyc-green transition-colors">
+              <a href={profileUser.portfolioUrl} target="_blank" rel="noreferrer" className="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 text-emerald-600 transition-colors">
                 <Globe className="w-4 h-4" />
               </a>
             )}
@@ -96,130 +91,122 @@ export const StudentPortfolioPage: React.FC = () => {
         </div>
 
         {/* Quick Highlights Bar */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-tyc-border text-center">
-          <div className="p-3 bg-tyc-bg rounded-xl">
-            <div className="text-xl font-bold text-tyc-text">{profileUser.certificatesEarned}</div>
-            <div className="text-[11px] text-tyc-muted">Verified Certifications</div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-center">
+          <div className="p-3 bg-slate-50 dark:bg-[#161F30] rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="text-xl font-black text-slate-900 dark:text-white">{profileUser.completedCourseIds?.length || 2}</div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Courses Mastered</div>
           </div>
-          <div className="p-3 bg-tyc-bg rounded-xl">
-            <div className="text-xl font-bold text-tyc-green">3</div>
-            <div className="text-[11px] text-tyc-muted">Production Capstones</div>
+          <div className="p-3 bg-slate-50 dark:bg-[#161F30] rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="text-xl font-black text-slate-900 dark:text-white">{mockProjects.length}</div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Projects Built</div>
           </div>
-          <div className="p-3 bg-tyc-bg rounded-xl">
-            <div className="text-xl font-bold text-tyc-orange">{profileUser.streakDays} Days</div>
-            <div className="text-[11px] text-tyc-muted">Daily Active Streak</div>
+          <div className="p-3 bg-slate-50 dark:bg-[#161F30] rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="text-xl font-black text-orange-600 dark:text-orange-400 flex items-center justify-center gap-1">
+              <Flame className="w-4 h-4 fill-orange-500" />
+              {profileUser.streakDays || 14}d
+            </div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Active Streak</div>
           </div>
-          <div className="p-3 bg-tyc-bg rounded-xl">
-            <div className="text-xl font-bold text-tyc-text">Top 5%</div>
-            <div className="text-[11px] text-tyc-muted">Cohort Standing</div>
+          <div className="p-3 bg-slate-50 dark:bg-[#161F30] rounded-xl border border-slate-200 dark:border-slate-800">
+            <div className="text-xl font-black text-emerald-600 dark:text-emerald-400">{mockCertificates.length}</div>
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">Verified Certs</div>
           </div>
         </div>
       </Card>
 
-      {/* Grid: Skills on Left, Capstone Projects & Certs on Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left 4 Cols: Verified Skills */}
-        <div className="lg:col-span-4 space-y-6">
-          <Card className="p-5 space-y-4">
-            <h3 className="text-sm font-bold text-tyc-text uppercase tracking-wider">
-              Verified Technical Skills
-            </h3>
-            <div className="space-y-3">
-              {profileUser.skills.map((sk) => (
-                <div key={sk.id} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-tyc-text">{sk.name}</span>
-                    <span className="font-bold text-tyc-green">{sk.level}%</span>
-                  </div>
-                  <ProgressBar progress={sk.level} color="green" size="xs" />
-                </div>
-              ))}
+      {/* Main 2-Column Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left 2 Cols: Verified Projects Showcase */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Code2 className="w-4 h-4 text-emerald-500" />
+              <h2 className="text-base font-bold text-slate-900 dark:text-white">Completed Capstones & Source Repos</h2>
             </div>
-          </Card>
+            <Badge variant="green" size="sm">Passing Test Suites</Badge>
+          </div>
 
-          {/* Badges / Hackathon Achievements */}
-          <Card className="p-5 space-y-3">
-            <h3 className="text-sm font-bold text-tyc-text uppercase tracking-wider">
-              Achievements & Badges
-            </h3>
-            <div className="space-y-2.5 text-xs">
-              <div className="p-2.5 bg-tyc-green-soft border border-tyc-green/20 rounded-lg flex items-center gap-2.5">
-                <Sparkles className="w-4 h-4 text-tyc-green" />
-                <div>
-                  <div className="font-bold text-tyc-text">Hackathon Finalist 2026</div>
-                  <div className="text-[10px] text-tyc-muted">Top 10 out of 380 global teams</div>
+          <div className="space-y-4">
+            {mockProjects.map((prj) => (
+              <Card key={prj.id} className="p-5 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <Badge variant="green" size="sm" className="mb-1">{prj.category}</Badge>
+                    <h3 className="text-sm font-bold text-slate-900 dark:text-white">{prj.title}</h3>
+                  </div>
+                  <a
+                    href="https://github.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white text-xs flex items-center gap-1"
+                  >
+                    <GithubIcon className="w-3.5 h-3.5" />
+                    <span>View Code</span>
+                  </a>
                 </div>
-              </div>
-              <div className="p-2.5 bg-tyc-orange-soft border border-tyc-orange/20 rounded-lg flex items-center gap-2.5">
-                <Flame className="w-4 h-4 text-tyc-orange" />
-                <div>
-                  <div className="font-bold text-tyc-text">28-Day Consistency Master</div>
-                  <div className="text-[10px] text-tyc-muted">Daily commits for 4 weeks straight</div>
+
+                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {prj.problemStatement}
+                </p>
+
+                <div className="pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-wrap gap-1.5">
+                  {prj.skills.map((sk) => (
+                    <span key={sk} className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 dark:bg-[#161F30] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-medium">
+                      {sk}
+                    </span>
+                  ))}
                 </div>
-              </div>
-            </div>
-          </Card>
+              </Card>
+            ))}
+          </div>
         </div>
 
-        {/* Right 8 Cols: Showcase Capstones & Certificates */}
-        <div className="lg:col-span-8 space-y-6">
-          {/* Showcase Capstone Projects */}
-          <div className="space-y-4">
-            <h3 className="text-base font-bold text-tyc-text flex items-center gap-2">
-              <Code2 className="w-4 h-4 text-tyc-green" />
-              Verified Production Capstones
-            </h3>
+        {/* Right 1 Col: Verified Skills & Certifications */}
+        <div className="space-y-6">
+          {/* Verified Skills */}
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <span className="text-xs font-bold text-slate-900 dark:text-white">Benchmarked Skills</span>
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">TYC Tested</span>
+            </div>
 
-            <div className="space-y-4">
-              {mockProjects.slice(0, 2).map((prj) => (
-                <Card key={prj.id} className="p-5 space-y-3 border-tyc-border hover:border-tyc-green/40 transition-all">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <h4 className="text-sm font-bold text-tyc-text">{prj.title}</h4>
-                    <Badge variant="green" size="sm">Score: 98/100 &bull; Approved</Badge>
+            <div className="space-y-3">
+              {[
+                { name: 'React 19 & TypeScript', score: 92 },
+                { name: 'FastAPI & Python 3.12', score: 86 },
+                { name: 'PostgreSQL & SQL Performance', score: 84 },
+                { name: 'Docker & Containerization', score: 78 }
+              ].map((sk) => (
+                <div key={sk.name} className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{sk.name}</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{sk.score}%</span>
                   </div>
-                  <p className="text-xs text-tyc-muted leading-relaxed">
-                    {prj.objective}
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {prj.skills.map((sk) => (
-                      <span key={sk} className="text-[10px] px-2 py-0.5 bg-tyc-bg border border-tyc-border rounded text-tyc-muted">
-                        {sk}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="pt-2 border-t border-tyc-border flex items-center justify-between text-xs">
-                    <a href="https://github.com" target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-tyc-green font-semibold hover:underline">
-                      <GithubIcon className="w-3.5 h-3.5" />
-                      <span>View GitHub Repository</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                    <span className="text-[11px] text-tyc-muted">Instructor Verified</span>
-                  </div>
-                </Card>
+                  <ProgressBar progress={sk.score} color="green" size="xs" />
+                </div>
               ))}
             </div>
-          </div>
+          </Card>
 
-          {/* Official Certificates */}
-          <div className="space-y-4 pt-2">
-            <h3 className="text-base font-bold text-tyc-text flex items-center gap-2">
-              <Award className="w-4 h-4 text-tyc-green" />
-              Verified Credentials
-            </h3>
+          {/* Verified Certificates */}
+          <Card className="p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
+              <div className="flex items-center gap-1.5">
+                <Award className="w-4 h-4 text-purple-500" />
+                <span className="text-xs font-bold text-slate-900 dark:text-white">Verified Certificates</span>
+              </div>
+            </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {mockCertificates.map((cert) => (
-                <Card key={cert.id} className="p-4 space-y-2 border-tyc-green/30 bg-white">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-mono text-tyc-muted">{cert.certificateId}</span>
-                    <Badge variant="green" size="sm">Score: {cert.credentialScore}%</Badge>
-                  </div>
-                  <h5 className="text-xs font-bold text-tyc-text line-clamp-1">{cert.courseTitle}</h5>
-                  <div className="text-[11px] text-tyc-muted">Issued: {cert.issuedDate}</div>
-                </Card>
+            <div className="space-y-3">
+              {mockCertificates.map((c) => (
+                <div key={c.id} className="p-3 bg-slate-50 dark:bg-[#161F30] rounded-xl border border-slate-200 dark:border-slate-800 space-y-1 text-xs">
+                  <Badge variant="green" size="sm">Issued {c.issuedDate}</Badge>
+                  <h4 className="font-bold text-slate-900 dark:text-white mt-1">{c.courseTitle}</h4>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono">ID: {c.certificateId}</p>
+                </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       </div>
     </div>

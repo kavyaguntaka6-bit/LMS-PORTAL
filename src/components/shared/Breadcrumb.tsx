@@ -15,8 +15,8 @@ export interface BreadcrumbProps {
 
 export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className }) => {
   return (
-    <nav aria-label="Breadcrumb" className={clsx('flex items-center text-xs text-tyc-muted', className)}>
-      <Link to="/" className="hover:text-tyc-text transition-colors flex items-center gap-1">
+    <nav aria-label="Breadcrumb" className={clsx('flex items-center text-xs text-slate-500 dark:text-slate-400', className)}>
+      <Link to="/" className="hover:text-[#11184A] dark:hover:text-white transition-colors flex items-center gap-1">
         <Home className="w-3.5 h-3.5" />
         <span>Home</span>
       </Link>
@@ -24,13 +24,13 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className }) => {
         const isLast = idx === items.length - 1;
         return (
           <React.Fragment key={idx}>
-            <ChevronRight className="w-3.5 h-3.5 mx-1.5 text-gray-400 shrink-0" />
+            <ChevronRight className="w-3.5 h-3.5 mx-1.5 text-slate-400 dark:text-slate-600 shrink-0" />
             {item.href && !isLast ? (
-              <Link to={item.href} className="hover:text-tyc-text transition-colors">
+              <Link to={item.href} className="hover:text-[#11184A] dark:hover:text-white transition-colors">
                 {item.label}
               </Link>
             ) : (
-              <span className="font-semibold text-tyc-text truncate max-w-[200px] sm:max-w-md">
+              <span className="font-bold text-[#11184A] dark:text-white truncate max-w-[200px] sm:max-w-md">
                 {item.label}
               </span>
             )}

@@ -7,20 +7,24 @@ import { GlobalSearchModal } from '../navigation/GlobalSearchModal';
 import { NotificationDrawer } from '../navigation/NotificationDrawer';
 import { AITutorDrawer } from '../navigation/AITutorDrawer';
 import { FloatingAiTutorButton } from '../ai/FloatingAiTutorButton';
+import { StudentCourseRecommendationModal } from '../onboarding/StudentCourseRecommendationModal';
+import { useLMS } from '../../context/LMSContext';
 
 export const AppLayout: React.FC = () => {
   const location = useLocation();
+  const { isOnboardingOpen, setIsOnboardingOpen } = useLMS();
 
   // Hide footer on distraction-free lesson player and coding playground
   const hideFooter = location.pathname.startsWith('/learn/') || location.pathname === '/coding';
 
   return (
-    <div className="min-h-screen flex flex-col bg-tyc-bg dark:bg-[#0B0F19] text-tyc-text dark:text-slate-100 transition-colors duration-200 relative">
-      {/* Global Navbar */}
+    <div className="min-h-screen flex flex-col bg-[#FFFFFF] dark:bg-[#05070A] text-[#11184A] dark:text-white relative overflow-x-hidden transition-colors duration-250">
+      
+      {/* Global Floating Navbar */}
       <Navbar />
 
       {/* Main Page Content with smooth fade transitions */}
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col relative z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -42,8 +46,12 @@ export const AppLayout: React.FC = () => {
       <GlobalSearchModal />
       <NotificationDrawer />
       <AITutorDrawer />
+      <StudentCourseRecommendationModal
+        isOpen={isOnboardingOpen}
+        onClose={() => setIsOnboardingOpen(false)}
+      />
 
-      {/* Conditional Footer */}
+      {/* Platform Global Footer */}
       {!hideFooter && <Footer />}
     </div>
   );

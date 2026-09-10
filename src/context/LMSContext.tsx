@@ -20,6 +20,8 @@ interface LMSContextType {
   setIsSearchOpen: (open: boolean) => void;
   isAiTutorOpen: boolean;
   setIsAiTutorOpen: (open: boolean) => void;
+  isOnboardingOpen: boolean;
+  setIsOnboardingOpen: (open: boolean) => void;
   aiContext: AIContextState;
   setAiContext: (ctx: AIContextState) => void;
   enrollCourse: (courseId: string) => Promise<boolean>;
@@ -40,6 +42,7 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Global modals & drawers
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isAiTutorOpen, setIsAiTutorOpen] = useState(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState(false);
   const [aiContext, setAiContext] = useState<AIContextState>({});
 
   const refreshCourses = useCallback(async () => {
@@ -60,6 +63,16 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     refreshCourses();
   }, [refreshCourses]);
+
+  // Auto-trigger onboarding modal for normal students who have not completed onboarding
+  useEffect(() => {
+    if (user && user.role === 'student' && user.onboardingCompleted === false) {
+      const timer = setTimeout(() => {
+        setIsOnboardingOpen(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [user]);
 
   // Global Keyboard shortcuts: Cmd+K / Ctrl+K for search
   useEffect(() => {
@@ -100,11 +113,8 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const toggleLessonComplete = async (courseId: string, lessonId: string): Promise<boolean> => {
     if (!user) return false;
-    const { completed, completedLessonIds } = await courseService.toggleLessonComplete(courseId, lessonId);
-    await updateProfile({ completedLessonIds });
-    if (completed) {
-      toast('Lesson Completed!', '+50 XP towards your career goal.', 'quiz');
-    }
+    const { completed } = await courseService.toggleLessonComplete(courseId, lessonId);
+    await refreshCourses();
     return completed;
   };
 
@@ -118,6 +128,8 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setIsSearchOpen,
         isAiTutorOpen,
         setIsAiTutorOpen,
+        isOnboardingOpen,
+        setIsOnboardingOpen,
         aiContext,
         setAiContext,
         enrollCourse,
@@ -131,7 +143,7 @@ export const LMSProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   );
 };
 
-export const useLMS = () => {
+export const useLMS = (): LMSContextType => {
   const context = useContext(LMSContext);
   if (!context) {
     throw new Error('useLMS must be used within an LMSProvider');

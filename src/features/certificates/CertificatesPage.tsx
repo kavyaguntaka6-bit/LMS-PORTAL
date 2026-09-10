@@ -5,11 +5,8 @@ import {
   Award,
   CheckCircle2,
   Download,
-  Share2,
   Search,
-  ExternalLink,
   ShieldCheck,
-  Sparkles,
   Printer
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
@@ -56,24 +53,24 @@ export const CertificatesPage: React.FC = () => {
       {/* Header */}
       <div className="space-y-2">
         <Breadcrumb items={[{ label: 'Certificates' }]} />
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-tyc-text tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           Verified Credentials & Certificates
         </h1>
-        <p className="text-xs sm:text-sm text-tyc-muted max-w-2xl">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
           TYC certificates are cryptographically verifiable credentials backed by real project code submissions and passing exam benchmarks.
         </p>
       </div>
 
       {/* Verification Lookup Tool */}
-      <Card className="bg-gradient-to-r from-white via-tyc-bg to-white p-6 shadow-subtle space-y-4">
+      <Card className="bg-gradient-to-r from-white via-slate-50 to-white dark:from-[#0D121F] dark:via-[#161F30] dark:to-[#0D121F] p-6 shadow-sm dark:shadow-xl space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs font-bold text-tyc-green uppercase tracking-wider">
+            <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
               <ShieldCheck className="w-4 h-4" />
               <span>Public Verification Engine</span>
             </div>
-            <h3 className="text-base font-bold text-tyc-text">Verify Any Candidate&apos;s TYC Credential</h3>
-            <p className="text-xs text-tyc-muted">Enter a Certificate ID (e.g. TYC-2026-REACT-8849) to validate authenticity.</p>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Verify Any Candidate&apos;s TYC Credential</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Enter a Certificate ID (e.g. TYC-2026-REACT-8849) to validate authenticity.</p>
           </div>
 
           <form onSubmit={handleVerify} className="flex items-center gap-2 w-full md:w-auto">
@@ -82,7 +79,7 @@ export const CertificatesPage: React.FC = () => {
               placeholder="e.g. TYC-2026-REACT-8849"
               value={verifyInput}
               onChange={(e) => setVerifyInput(e.target.value)}
-              className="text-xs bg-white border border-tyc-border rounded-lg px-3.5 py-2 text-tyc-text focus:outline-none focus:border-tyc-green w-full md:w-64"
+              className="text-xs bg-white dark:bg-[#0D121F] border border-slate-300 dark:border-slate-800 rounded-xl px-3.5 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500 w-full md:w-64"
             />
             <Button type="submit" variant="primary" size="sm" isLoading={isVerifying}>
               <Search className="w-3.5 h-3.5 mr-1" />
@@ -93,17 +90,18 @@ export const CertificatesPage: React.FC = () => {
 
         {/* Verification Result Card */}
         {verifyResult && (
-          <div className="p-4 bg-tyc-green-soft/50 border border-tyc-green/30 rounded-xl flex items-start justify-between gap-4 text-xs animate-in fade-in duration-200">
+          <div className="p-4 bg-emerald-50/80 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 rounded-2xl flex items-start justify-between gap-4 text-xs animate-in fade-in duration-200">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <Badge variant="green" size="sm">Authentic & Verified</Badge>
-                <span className="font-mono text-tyc-muted text-[11px]">{verifyResult.certificateId}</span>
+                <span className="font-mono text-slate-500 dark:text-slate-400 text-[11px]">{verifyResult.certificateId}</span>
               </div>
-              <h4 className="font-bold text-tyc-text text-sm">{verifyResult.courseTitle}</h4>
-              <p className="text-tyc-muted">
-                Awarded to <strong>{verifyResult.studentName}</strong> on {verifyResult.issuedDate} &bull; Instructor: {verifyResult.instructorName}
+              <h4 className="text-sm font-bold text-slate-900 dark:text-white">{verifyResult.courseTitle}</h4>
+              <p className="text-slate-600 dark:text-slate-300">
+                Issued to <strong className="text-slate-900 dark:text-white">{verifyResult.studentName}</strong> on {verifyResult.issuedDate}. Grade: {verifyResult.grade}.
               </p>
             </div>
+
             <Button variant="outline" size="sm" onClick={() => setSelectedCert(verifyResult)}>
               View Certificate
             </Button>
@@ -111,140 +109,142 @@ export const CertificatesPage: React.FC = () => {
         )}
       </Card>
 
-      {/* My Earned Certificates Grid */}
+      {/* Earned Certificates Grid */}
       <div className="space-y-4">
-        <h3 className="text-base font-bold text-tyc-text">Your Earned Certificates (2)</h3>
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">Your Earned Credentials ({mockCertificates.length})</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {mockCertificates.map((cert) => (
-            <Card key={cert.id} className="p-6 space-y-4 shadow-subtle border-tyc-green/30">
-              <div className="flex items-start justify-between">
-                <div className="p-2.5 rounded-xl bg-tyc-green-soft text-tyc-green">
+            <Card key={cert.id} hoverable className="p-6 space-y-5 relative overflow-hidden">
+              {/* Corner Ribbon */}
+              <div className="absolute top-0 right-0 w-24 h-24 overflow-hidden pointer-events-none">
+                <div className="bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 text-[10px] font-black py-1 text-center rotate-45 translate-x-7 translate-y-3 shadow-sm">
+                  VERIFIED
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800 flex items-center justify-center shrink-0">
                   <Award className="w-6 h-6" />
                 </div>
-                <Badge variant="green" size="sm">Verified (Score: {cert.credentialScore}%)</Badge>
+                <div>
+                  <Badge variant="green" size="sm" className="mb-1">Issued {cert.issuedDate}</Badge>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">{cert.courseTitle}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Instructor: {cert.instructorName}</p>
+                </div>
               </div>
 
-              <div>
-                <span className="text-[11px] font-mono text-tyc-muted">{cert.certificateId}</span>
-                <h4 className="text-base font-bold text-tyc-text mt-0.5">{cert.courseTitle}</h4>
-                <p className="text-xs text-tyc-muted mt-1">
-                  Issued to <strong>{cert.studentName}</strong> &bull; {cert.issuedDate}
-                </p>
+              <div className="p-3 bg-slate-50 dark:bg-[#161F30] rounded-xl border border-slate-200 dark:border-slate-800 space-y-1.5 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-slate-500 dark:text-slate-400">Credential ID:</span>
+                  <span className="font-mono text-slate-900 dark:text-white font-bold">{cert.certificateId}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-slate-500 dark:text-slate-400">Evaluation Grade:</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">{cert.grade}</span>
+                </div>
               </div>
 
-              <div className="flex flex-wrap gap-1.5 pt-2 border-t border-tyc-border">
-                {cert.skills.slice(0, 3).map((sk) => (
-                  <span key={sk} className="text-[10px] px-2 py-0.5 bg-tyc-bg border border-tyc-border rounded text-tyc-muted">
-                    {sk}
-                  </span>
-                ))}
-              </div>
-
-              <div className="flex items-center justify-between pt-2">
-                <Button variant="primary" size="sm" onClick={() => setSelectedCert(cert)}>
-                  View Official Certificate
-                </Button>
-                <button
-                  onClick={() => {
-                    navigator.clipboard.writeText(cert.verificationUrl);
-                    toast('Link Copied', 'Public verification link copied to clipboard.', 'system');
-                  }}
-                  className="p-2 rounded-lg border border-tyc-border hover:bg-tyc-bg text-tyc-muted hover:text-tyc-text"
-                  title="Share Verification URL"
+              <div className="pt-2 flex items-center justify-between gap-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSelectedCert(cert)}
+                  className="flex-1 text-xs"
                 >
-                  <Share2 className="w-4 h-4" />
-                </button>
+                  Inspect Credential
+                </Button>
+
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setSelectedCert(cert)}
+                  className="flex-1 text-xs"
+                >
+                  <Download className="w-3.5 h-3.5 mr-1" />
+                  Download PDF
+                </Button>
               </div>
             </Card>
           ))}
         </div>
       </div>
 
-      {/* Official Certificate Preview Modal */}
-      <Modal
-        isOpen={!!selectedCert}
-        onClose={() => setSelectedCert(null)}
-        maxWidth="2xl"
-      >
-        {selectedCert && (
-          <div className="space-y-6">
-            {/* Printable Certificate Canvas */}
-            <div className="bg-white border-8 border-double border-tyc-border rounded-xl p-8 sm:p-12 text-center relative shadow-modal space-y-6">
-              {/* Corner Watermarks */}
-              <div className="absolute top-4 left-4 text-[10px] font-bold text-tyc-green tracking-widest uppercase">
-                Traya Yukti Core &bull; Official
-              </div>
-              <div className="absolute top-4 right-4 text-[10px] font-mono text-tyc-muted">
-                {selectedCert.certificateId}
-              </div>
-
-              <div className="space-y-2 pt-2">
-                <div className="w-12 h-12 rounded-xl bg-tyc-green text-white font-black text-lg flex items-center justify-center mx-auto shadow-md">
-                  TYC
+      {/* Certificate Modal Showcase */}
+      {selectedCert && (
+        <Modal
+          isOpen={true}
+          onClose={() => setSelectedCert(null)}
+          size="2xl"
+        >
+          <div className="p-2 sm:p-6 space-y-6">
+            {/* Diploma UI */}
+            <div className="relative border-4 border-amber-400/60 bg-gradient-to-b from-white to-amber-50/20 dark:from-[#0D121F] dark:to-[#161F30] rounded-3xl p-8 text-center space-y-6 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-amber-400/30 pb-4">
+                <div className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">
+                  TYC VERIFIED CERTIFICATION
                 </div>
-                <div className="text-xs font-bold uppercase tracking-widest text-tyc-muted">
-                  Certificate of Achievement & Engineering Competence
+                <div className="text-xs font-mono text-slate-400">
+                  ID: {selectedCert.certificateId}
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <p className="text-xs text-tyc-muted">This is officially certified to</p>
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-tyc-text underline decoration-tyc-green/40 underline-offset-8">
-                  {selectedCert.studentName}
+              <div className="space-y-2">
+                <div className="w-16 h-16 rounded-full bg-amber-100 dark:bg-amber-950 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto border-2 border-amber-400">
+                  <Award className="w-8 h-8" />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-serif font-black text-slate-900 dark:text-white">
+                  Certificate of Competence
                 </h2>
-                <p className="text-xs text-tyc-muted pt-2 max-w-md mx-auto">
-                  for successfully mastering the curriculum, passing all automated benchmark assessments, and publishing approved industry capstones for:
-                </p>
-                <h3 className="text-lg font-bold text-tyc-green pt-1">
-                  {selectedCert.courseTitle}
+                <p className="text-xs text-slate-500 dark:text-slate-400">This is to officially certify that</p>
+              </div>
+
+              <div className="py-2 border-b-2 border-dashed border-amber-300 dark:border-amber-800 max-w-sm mx-auto">
+                <h3 className="text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400">
+                  {selectedCert.studentName}
                 </h3>
               </div>
 
-              {/* Skills Verified */}
-              <div className="flex flex-wrap items-center justify-center gap-1.5 max-w-md mx-auto">
-                {selectedCert.skills.map((s) => (
-                  <span key={s} className="text-[10px] px-2 py-0.5 bg-tyc-bg border border-tyc-border rounded font-medium text-tyc-text">
-                    {s}
-                  </span>
-                ))}
-              </div>
+              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 max-w-lg mx-auto leading-relaxed">
+                has demonstrated industry proficiency and successfully fulfilled all capstone and examination requirements for
+              </p>
 
-              {/* Signatures & Verification Stamp */}
-              <div className="grid grid-cols-2 pt-6 border-t border-tyc-border text-xs text-tyc-muted">
+              <h4 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                {selectedCert.courseTitle}
+              </h4>
+
+              <div className="pt-6 grid grid-cols-2 gap-8 border-t border-amber-400/30 text-xs">
                 <div className="text-left space-y-1">
-                  <div className="font-serif italic text-base text-tyc-text">Sarah Chen, Ph.D.</div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-tyc-text">Lead Instructor</div>
-                  <div className="text-[10px]">Traya Yukti Core Academic Board</div>
+                  <div className="font-bold text-slate-900 dark:text-white">{selectedCert.instructorName}</div>
+                  <div className="text-slate-500 dark:text-slate-400">Lead Curriculum Architect</div>
                 </div>
-
                 <div className="text-right space-y-1">
-                  <div className="font-mono text-tyc-text font-bold">{selectedCert.issuedDate}</div>
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-tyc-text">Issue Date</div>
-                  <div className="text-[10px] text-tyc-green font-semibold">Grade: {selectedCert.grade}</div>
+                  <div className="font-bold text-slate-900 dark:text-white">{selectedCert.issuedDate}</div>
+                  <div className="text-slate-500 dark:text-slate-400">Date of Award</div>
                 </div>
               </div>
             </div>
 
-            {/* Modal Actions */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-tyc-muted">
-                Public URL: <strong className="text-tyc-text">{selectedCert.verificationUrl}</strong>
+            {/* Modal Controls */}
+            <div className="flex items-center justify-between pt-2">
+              <span className="text-xs text-slate-500 flex items-center gap-1">
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                Cryptographically Sealed
               </span>
 
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={handleDownloadPDF}>
+                <Button variant="outline" size="sm" onClick={() => setSelectedCert(null)}>
+                  Close
+                </Button>
+                <Button variant="primary" size="sm" onClick={handleDownloadPDF}>
                   <Printer className="w-3.5 h-3.5 mr-1" />
                   Print / Save PDF
-                </Button>
-                <Button variant="primary" size="sm" onClick={() => setSelectedCert(null)}>
-                  Done
                 </Button>
               </div>
             </div>
           </div>
-        )}
-      </Modal>
+        </Modal>
+      )}
     </div>
   );
 };

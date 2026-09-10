@@ -8,11 +8,7 @@ import {
   Pin,
   Sparkles,
   Plus,
-  Search,
-  Filter,
-  ArrowRight,
   Share2,
-  Users
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -44,7 +40,7 @@ export const CommunityPage: React.FC = () => {
   });
 
   const handleUpvote = async (postId: string) => {
-    const newCount = await communityService.toggleUpvote(postId);
+    await communityService.toggleUpvote(postId);
     setPosts(prev => prev.map(p => {
       if (p.id === postId) {
         return {
@@ -74,14 +70,20 @@ export const CommunityPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
+        <div className="space-y-2">
           <Breadcrumb items={[{ label: 'Developer Community' }]} />
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-tyc-text tracking-tight">
-            TYC Developer & Peer Community
-          </h1>
-          <p className="text-xs sm:text-sm text-tyc-muted max-w-2xl">
-            Share architecture breakdowns, organize mock interview study groups, and get code feedback from instructors.
-          </p>
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 dark:bg-amber-950/60 border border-amber-200 dark:border-amber-800 text-[11px] font-bold text-amber-800 dark:text-amber-300 mb-2">
+              <MessageSquare className="w-3.5 h-3.5 text-amber-600" />
+              <span>Peer Discussions & Study Groups</span>
+            </div>
+            <h1 className="text-2xl sm:text-4xl font-black text-[#11184A] dark:text-white tracking-tight">
+              TYC Developer & <span className="text-rainbow">Peer Community</span>
+            </h1>
+            <p className="text-xs sm:text-sm text-[#5F6680] dark:text-slate-400 mt-1.5 max-w-2xl leading-relaxed font-normal">
+              Share architecture breakdowns, organize mock interview study groups, and get code feedback from instructors.
+            </p>
+          </div>
         </div>
 
         <Button variant="primary" size="md" onClick={() => setNewPostModalOpen(true)}>
@@ -91,15 +93,15 @@ export const CommunityPage: React.FC = () => {
       </div>
 
       {/* Category Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-tyc-border pb-3">
+      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-slate-100 dark:border-slate-800 pb-3">
         {categories.map((c) => (
           <button
             key={c}
             onClick={() => setActiveCategory(c)}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold shrink-0 transition-colors ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold shrink-0 transition-all cursor-pointer ${
               activeCategory === c
-                ? 'bg-tyc-green text-white shadow-sm'
-                : 'bg-white text-tyc-muted hover:text-tyc-text hover:bg-tyc-bg border border-tyc-border'
+                ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                : 'bg-white dark:bg-[#0D121F] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
             }`}
           >
             {c}
@@ -107,165 +109,146 @@ export const CommunityPage: React.FC = () => {
         ))}
       </div>
 
-      {/* Posts Feed */}
+      {/* Posts List */}
       <div className="space-y-4">
         {filteredPosts.map((post) => (
-          <Card key={post.id} className="p-6 space-y-4 shadow-subtle border-tyc-border">
-            {/* Post Header */}
+          <Card key={post.id} hoverable className="p-6 space-y-4 shadow-sm dark:shadow-xl">
             <div className="flex items-start justify-between gap-4">
-              <div className="flex items-center gap-3">
+              <div className="flex items-start gap-3.5">
                 <img
                   src={post.author.avatar}
                   alt={post.author.name}
-                  className="w-10 h-10 rounded-full object-cover border border-tyc-border"
+                  className="w-10 h-10 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm"
                 />
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold text-tyc-text">{post.author.name}</span>
-                    {post.author.badge && (
-                      <Badge variant="green" size="sm">{post.author.badge}</Badge>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">{post.author.name}</span>
+                    <Badge variant={post.author.role === 'Instructor' ? 'purple' : 'green'} size="sm">
+                      {post.author.role}
+                    </Badge>
+                    <span className="text-[11px] text-slate-400">&bull;</span>
+                    <span className="text-[11px] text-slate-400">{post.createdAt}</span>
+                    {post.pinned && (
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/60 px-2 py-0.5 rounded-full border border-amber-200 dark:border-amber-800">
+                        <Pin className="w-3 h-3 fill-current" /> Pinned
+                      </span>
                     )}
                   </div>
-                  <span className="text-[11px] text-tyc-muted">{post.author.role} &bull; {post.createdAt}</span>
+
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white mt-1.5 leading-snug">
+                    {post.title}
+                  </h3>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                {post.pinned && (
-                  <span className="flex items-center gap-1 text-[11px] text-tyc-green font-bold bg-tyc-green-soft px-2 py-0.5 rounded">
-                    <Pin className="w-3 h-3" /> Pinned
+              <Badge variant="gray" size="sm">{post.category}</Badge>
+            </div>
+
+            <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+              {post.content}
+            </p>
+
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex flex-wrap gap-1.5">
+                {post.tags.map((t) => (
+                  <span key={t} className="text-[11px] px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-[#161F30] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-medium">
+                    #{t}
                   </span>
-                )}
-                <Badge variant="gray" size="sm">{post.category}</Badge>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="space-y-1.5">
-              <h3 className="text-base font-bold text-tyc-text leading-snug">{post.title}</h3>
-              <p className="text-xs text-tyc-muted leading-relaxed whitespace-pre-line">{post.content}</p>
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-1.5 pt-1">
-              {post.tags.map((t) => (
-                <span key={t} className="text-[10px] px-2 py-0.5 bg-tyc-bg border border-tyc-border rounded text-tyc-muted">
-                  #{t}
-                </span>
-              ))}
-            </div>
-
-            {/* Comments Thread Preview */}
-            {post.comments && post.comments.length > 0 && (
-              <div className="bg-tyc-bg p-3.5 rounded-xl border border-tyc-border space-y-3 mt-2">
-                <div className="text-[11px] font-bold text-tyc-muted uppercase">Top Instructor Response</div>
-                {post.comments.map((comment) => (
-                  <div key={comment.id} className="flex items-start gap-2.5 text-xs">
-                    <img src={comment.authorAvatar} alt="" className="w-6 h-6 rounded-full object-cover mt-0.5 border border-tyc-border" />
-                    <div className="space-y-0.5">
-                      <strong className="text-tyc-text">{comment.authorName}</strong>
-                      <p className="text-tyc-muted text-[11px] leading-relaxed">{comment.content}</p>
-                    </div>
-                  </div>
                 ))}
               </div>
-            )}
 
-            {/* Actions: Upvote & Reply */}
-            <div className="flex items-center justify-between pt-3 border-t border-tyc-border text-xs">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleUpvote(post.id)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border transition-all ${
+                  className={`flex items-center gap-1 px-3 py-1 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
                     post.hasUpvoted
-                      ? 'bg-tyc-green-soft text-tyc-green font-bold border-tyc-green/30'
-                      : 'bg-white text-tyc-muted hover:text-tyc-text border-tyc-border'
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-800'
+                      : 'bg-white dark:bg-[#161F30] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  <ThumbsUp className="w-3.5 h-3.5" />
-                  <span>{post.upvotes} Upvotes</span>
+                  <ThumbsUp className={`w-3.5 h-3.5 ${post.hasUpvoted ? 'fill-current' : ''}`} />
+                  <span>{post.upvotes}</span>
                 </button>
 
-                <div className="flex items-center gap-1 text-tyc-muted px-2 py-1">
+                <div className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-xs font-medium">
                   <MessageSquare className="w-3.5 h-3.5" />
-                  <span>{post.commentsCount} Comments</span>
+                  <span>{post.commentsCount} replies</span>
                 </div>
               </div>
-
-              <span className="text-[11px] text-tyc-muted">Peer Reviewed Thread</span>
             </div>
           </Card>
         ))}
       </div>
 
-      {/* New Post Thread Modal */}
-      <Modal
-        isOpen={newPostModalOpen}
-        onClose={() => setNewPostModalOpen(false)}
-        title="Create New Discussion Thread"
-        description="Ask an architecture question or share your finished project."
-        maxWidth="lg"
-      >
-        <form onSubmit={handleCreatePost} className="space-y-4 text-xs">
-          <div>
-            <label className="block font-medium text-tyc-text mb-1">Thread Title</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g. How I architected a high-throughput Redis clone in Python..."
-              value={postTitle}
-              onChange={(e) => setPostTitle(e.target.value)}
-              className="w-full bg-white border border-tyc-border rounded-lg px-3 py-2 text-xs text-tyc-text focus:outline-none focus:border-tyc-green"
-            />
-          </div>
+      {/* Create Post Modal */}
+      {newPostModalOpen && (
+        <Modal
+          isOpen={true}
+          onClose={() => setNewPostModalOpen(false)}
+          title="Create Discussion Thread"
+          size="md"
+        >
+          <form onSubmit={handleCreatePost} className="space-y-4 p-1">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Category:</label>
+              <select
+                value={postCategory}
+                onChange={(e) => setPostCategory(e.target.value as any)}
+                className="w-full bg-slate-50 dark:bg-[#161F30] border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+              >
+                <option value="Showcases">Project Showcase</option>
+                <option value="Questions">Technical Question</option>
+                <option value="Study Groups">Study Group</option>
+                <option value="Announcements">Announcement</option>
+              </select>
+            </div>
 
-          <div>
-            <label className="block font-medium text-tyc-text mb-1">Category</label>
-            <select
-              value={postCategory}
-              onChange={(e) => setPostCategory(e.target.value as any)}
-              className="w-full bg-white border border-tyc-border rounded-lg px-3 py-2 text-xs text-tyc-text focus:outline-none"
-            >
-              <option value="Showcases">Project Showcase</option>
-              <option value="Questions">Technical / Architecture Question</option>
-              <option value="Study Groups">Study Group & Mock Interviews</option>
-              <option value="General">General Technology Discussion</option>
-            </select>
-          </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Discussion Title:</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. My Distributed Cache Project Benchmark Results"
+                value={postTitle}
+                onChange={(e) => setPostTitle(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-[#161F30] border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
 
-          <div>
-            <label className="block font-medium text-tyc-text mb-1">Content (Markdown supported)</label>
-            <textarea
-              rows={5}
-              required
-              placeholder="Describe your design decisions, code snippet, or study group schedule..."
-              value={postContent}
-              onChange={(e) => setPostContent(e.target.value)}
-              className="w-full bg-white border border-tyc-border rounded-lg p-3 text-xs text-tyc-text focus:outline-none focus:border-tyc-green"
-            />
-          </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Content / Question Details:</label>
+              <textarea
+                rows={4}
+                required
+                placeholder="Explain the problem or showcase architecture details..."
+                value={postContent}
+                onChange={(e) => setPostContent(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-[#161F30] border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
 
-          <div>
-            <label className="block font-medium text-tyc-text mb-1">Tags (Comma-separated)</label>
-            <input
-              type="text"
-              placeholder="React, FastAPI, Career, DSA"
-              value={postTags}
-              onChange={(e) => setPostTags(e.target.value)}
-              className="w-full bg-white border border-tyc-border rounded-lg px-3 py-2 text-xs text-tyc-text focus:outline-none focus:border-tyc-green"
-            />
-          </div>
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300">Tags (comma-separated):</label>
+              <input
+                type="text"
+                placeholder="React, TypeScript, Docker, Redis"
+                value={postTags}
+                onChange={(e) => setPostTags(e.target.value)}
+                className="w-full bg-slate-50 dark:bg-[#161F30] border border-slate-200 dark:border-slate-800 rounded-xl px-3.5 py-2 text-xs text-slate-900 dark:text-white focus:outline-none focus:border-emerald-500"
+              />
+            </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-tyc-border">
-            <Button variant="outline" size="sm" onClick={() => setNewPostModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button variant="primary" size="sm" type="submit">
-              Publish Thread
-            </Button>
-          </div>
-        </form>
-      </Modal>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={() => setNewPostModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" variant="primary" size="sm">
+                Publish Thread
+              </Button>
+            </div>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 };

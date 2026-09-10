@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLMS } from '../../context/LMSContext';
+import { useAuth } from '../../context/AuthContext';
 import { useNotifications } from '../../context/NotificationContext';
+import { courseService } from '../../services/api';
 import {
   BookOpen,
   Plus,
@@ -9,15 +11,17 @@ import {
   CheckCircle2,
   Clock,
   Layers,
-  ChevronDown,
-  ChevronUp,
   Sparkles,
   FileCode,
   Eye,
   Video,
-  FolderPlus,
   Save,
-  Check
+  Check,
+  X,
+  AlertCircle,
+  Send,
+  ShieldCheck,
+  Crown
 } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
@@ -28,14 +32,18 @@ import { Course, CourseModule, Lesson } from '../../types';
 
 export const CourseCMSPage: React.FC = () => {
   const { courses, refreshCourses } = useLMS();
+  const { user, isAdmin, isSuperAdmin } = useAuth();
   const { toast } = useNotifications();
 
+  const [courseList, setCourseList] = useState<Course[]>(courses);
   const [selectedCourse, setSelectedCourse] = useState<Course>(courses[0] || {} as any);
   
   // Modals
   const [newLessonModalOpen, setNewLessonModalOpen] = useState(false);
   const [newModuleModalOpen, setNewModuleModalOpen] = useState(false);
   const [newCourseModalOpen, setNewCourseModalOpen] = useState(false);
+  const [reviewDrawerOpen, setReviewDrawerOpen] = useState(false);
+  const [reviewNotes, setReviewNotes] = useState('');
 
   // Lesson state
   const [selectedModuleId, setSelectedModuleId] = useState<string>('');
@@ -54,28 +62,76 @@ export const CourseCMSPage: React.FC = () => {
   const [newCourseDifficulty, setNewCourseDifficulty] = useState<'Beginner' | 'Intermediate' | 'Advanced'>('Intermediate');
   const [newCourseDuration, setNewCourseDuration] = useState(20);
 
-  const saveCourseChanges = (updatedCourse: Course) => {
+  useEffect(() => {
+    loadLiveCourses();
+  }, []);
+
+  const loadLiveCourses = async () => {
     try {
-      const stored = localStorage.getItem('tyc_courses');
-      let courseList: Course[] = stored ? JSON.parse(stored) : courses;
-      const idx = courseList.findIndex(c => c.id === updatedCourse.id);
-      if (idx !== -1) {
-        courseList[idx] = updatedCourse;
-      } else {
-        courseList.unshift(updatedCourse);
+      const all = await courseService.getCourses();
+      setCourseList(all);
+      if (all.length > 0 && (!selectedCourse.id || !all.some((c) => c.id === selectedCourse.id))) {
+        setSelectedCourse(all[0]);
       }
-      localStorage.setItem('tyc_courses', JSON.stringify(courseList));
-      setSelectedCourse({ ...updatedCourse });
-      refreshCourses();
     } catch (e) {
       console.error(e);
     }
   };
 
-  const handleStatusChange = (newStatus: Course['status']) => {
-    const updated = { ...selectedCourse, status: newStatus };
-    saveCourseChanges(updated);
-    toast('Status Updated', `Course status changed to ${newStatus}.`, 'system');
+  const saveCourseChanges = async (updatedCourse: Course) => {
+    try {
+      const saved = await courseService.saveCourse(updatedCourse, user || undefined);
+      setSelectedCourse(saved);
+      await loadLiveCourses();
+      refreshCourses();
+      toast('Course Saved', `Changes saved to ${saved.title}.`, 'course');
+    } catch (err: any) {
+      toast('Save Error', err?.message || 'Failed to save course changes.', 'system');
+    }
+  };
+
+  // Moderation Handlers
+  const handleReviewDecision = async (decision: 'approved' | 'rejected' | 'changes_requested') => {
+    if (!selectedCourse.id) return;
+    try {
+      const reviewed = await courseService.reviewCourse(
+        selectedCourse.id,
+        decision,
+        reviewNotes || `Verdict: ${decision.toUpperCase()}`,
+        user || undefined
+      );
+      setSelectedCourse(reviewed);
+      setReviewDrawerOpen(false);
+      setReviewNotes('');
+      await loadLiveCourses();
+      toast('Course Review Submitted', `Verdict: ${decision.toUpperCase()}.`, 'system');
+    } catch (err: any) {
+      toast('Review Error', err?.message || 'Failed to review course.', 'system');
+    }
+  };
+
+  const handlePublishCourse = async () => {
+    if (!selectedCourse.id) return;
+    try {
+      const published = await courseService.publishCourse(selectedCourse.id, user || undefined);
+      setSelectedCourse(published);
+      await loadLiveCourses();
+      toast('Course Published', 'Course is now live in the student catalog.', 'system');
+    } catch (err: any) {
+      toast('Publish Error', err?.message || 'Insufficient permissions to publish directly.', 'system');
+    }
+  };
+
+  const handleArchiveCourse = async () => {
+    if (!selectedCourse.id) return;
+    try {
+      const archived = await courseService.archiveCourse(selectedCourse.id, user || undefined);
+      setSelectedCourse(archived);
+      await loadLiveCourses();
+      toast('Course Archived', 'Course retired from active view.', 'system');
+    } catch (err: any) {
+      toast('Error', err?.message || 'Failed to archive course.', 'system');
+    }
   };
 
   const handleAddModule = (e: React.FormEvent) => {
@@ -97,281 +153,359 @@ export const CourseCMSPage: React.FC = () => {
     };
 
     saveCourseChanges(updated);
-    toast('Module Added', `"${newModuleTitle}" created successfully.`, 'course');
     setNewModuleModalOpen(false);
     setNewModuleTitle('');
   };
 
   const handleAddLesson = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newLessonTitle.trim()) return;
+    if (!newLessonTitle.trim() || !selectedModuleId) return;
 
-    const targetModId = selectedModuleId || selectedCourse.modules?.[0]?.id || 'mod_1';
-
+    const targetModule = (selectedCourse.modules || []).find(m => m.id === selectedModuleId);
     const newLesson: Lesson = {
       id: `les_${Date.now()}`,
-      moduleId: targetModId,
+      moduleId: selectedModuleId,
       courseId: selectedCourse.id,
+      order: (targetModule?.lessons?.length || 0) + 1,
       title: newLessonTitle,
-      order: 1,
-      durationMinutes: newLessonDuration,
+      durationMinutes: Number(newLessonDuration),
       type: newLessonType,
-      videoUrl: newLessonVideoUrl || 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+      videoUrl: newLessonVideoUrl || 'https://www.youtube.com/embed/dQw4w9WgXcQ'
     };
 
-    const updatedModules = (selectedCourse.modules || []).map(m => {
-      if (m.id === targetModId) {
+    const updatedModules = (selectedCourse.modules || []).map((m) => {
+      if (m.id === selectedModuleId) {
         return {
           ...m,
-          durationMinutes: m.durationMinutes + newLessonDuration,
-          lessons: [...m.lessons, { ...newLesson, order: m.lessons.length + 1 }]
+          lessons: [...(m.lessons || []), newLesson]
         };
       }
       return m;
     });
 
-    const totalLessons = updatedModules.reduce((acc, m) => acc + m.lessons.length, 0);
-
     const updated = {
       ...selectedCourse,
       modules: updatedModules,
-      lessonsCount: totalLessons
+      lessonsCount: (selectedCourse.lessonsCount || 0) + 1
     };
 
     saveCourseChanges(updated);
-    toast('Lesson Added', `"${newLessonTitle}" published to module.`, 'course');
     setNewLessonModalOpen(false);
     setNewLessonTitle('');
     setNewLessonVideoUrl('');
   };
 
-  const handleCreateCourse = (e: React.FormEvent) => {
+  const handleCreateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newCourseTitle.trim()) return;
 
     const newCourse: Course = {
       id: `crs_${Date.now()}`,
-      slug: newCourseTitle.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      slug: newCourseTitle.toLowerCase().replace(/[^a-z0-9]/g, '-'),
       title: newCourseTitle,
-      subtitle: newCourseSubtitle || 'Master next-generation engineering skills with project-based learning.',
-      description: 'Comprehensive industry curriculum developed by senior architects and tech leaders.',
+      subtitle: newCourseSubtitle || 'Enterprise Masterclass by Traya Yukti',
       category: newCourseCategory,
       difficulty: newCourseDifficulty,
-      durationHours: newCourseDuration,
+      durationHours: Number(newCourseDuration),
+      lessonsCount: 0,
+      modulesCount: 0,
+      projectsCount: 1,
       rating: 5.0,
       reviewsCount: 1,
-      studentsCount: 1,
-      thumbnail: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&auto=format&fit=crop&q=80',
+      studentsCount: 0,
       price: 0,
-      isFeatured: true,
       hasCertificate: true,
-      skills: ['Modern Frameworks', 'Full-Stack Architecture', 'Testing & CI/CD'],
-      prerequisites: ['Basic programming fundamentals'],
-      learningObjectives: [
-        'Understand modern system architecture and best practices',
-        'Build production-ready projects with automated tests',
-        'Prepare for technical career interviews'
-      ],
-      projectsCount: 1,
-      modulesCount: 1,
-      lessonsCount: 1,
-      whyThisCourse: 'Curated curriculum aligned with current market demand.',
-      lastUpdated: 'Just now',
-      status: 'published',
+      skills: ['Full Stack AI', 'System Architecture'],
+      prerequisites: ['Basic JavaScript knowledge'],
+      learningObjectives: ['Master production concepts', 'Build full stack AI integrations'],
+      thumbnail: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
+      description: 'Comprehensive curriculum designed for industry mastery.',
       instructor: {
-        id: 'inst_new',
-        name: 'TYC Expert Faculty',
-        role: 'Senior Staff Engineer',
-        company: 'Traya Yukti Labs',
-        avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-        bio: 'Industry practitioner guiding modern software engineers.',
-        rating: 4.98,
-        studentsCount: 12000,
-        coursesCount: 4
+        id: user?.id || 'usr_inst_1',
+        name: user?.name || 'Faculty Director',
+        role: 'Senior Curriculum Architect',
+        company: 'Traya Yukti AI',
+        avatar: user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        bio: 'Industry specialist and enterprise curriculum lead.',
+        rating: 4.9,
+        studentsCount: 1200,
+        coursesCount: 3
       },
-      modules: [
-        {
-          id: `mod_${Date.now()}`,
-          title: 'Module 1: Foundations & Architecture',
-          order: 1,
-          durationMinutes: 60,
-          lessons: [
-            {
-              id: `les_${Date.now()}`,
-              moduleId: `mod_${Date.now()}`,
-              courseId: `crs_${Date.now()}`,
-              title: '1.1 Course Overview & Architecture Setup',
-              order: 1,
-              durationMinutes: 20,
-              type: 'video',
-              videoUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-            }
-          ]
-        }
-      ]
+      status: isAdmin ? 'published' : 'draft',
+      reviewStatus: isAdmin ? 'approved' : 'draft',
+      lastUpdated: 'Just now',
+      modules: []
     };
 
-    saveCourseChanges(newCourse);
-    toast('New Course Published', `"${newCourse.title}" is now active in the platform catalog.`, 'course');
-    setNewCourseModalOpen(false);
-    setNewCourseTitle('');
-    setNewCourseSubtitle('');
+    try {
+      const saved = await courseService.saveCourse(newCourse, user || undefined);
+      setNewCourseModalOpen(false);
+      setNewCourseTitle('');
+      setNewCourseSubtitle('');
+      await loadLiveCourses();
+      setSelectedCourse(saved);
+      toast('Course Created', `Initialized course "${saved.title}".`, 'course');
+    } catch (err: any) {
+      toast('Error', err?.message || 'Failed to create course.', 'system');
+    }
   };
 
   return (
     <div className="space-y-6">
-      {/* Top Header */}
+      
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-bold text-tyc-text dark:text-white">Course Curriculum CMS</h1>
-          <p className="text-xs text-tyc-muted dark:text-gray-400">Manage Course &rarr; Module &rarr; Lesson hierarchy and publishing workflows.</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+            <BookOpen className="w-5 h-5 text-emerald-500" />
+            Course Curriculum CMS & Moderation Workflow
+          </h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
+            Author syllabus, construct modular lessons, evaluate submitted faculty courses, and control publishing.
+          </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={() => setNewCourseModalOpen(true)} className="dark:border-gray-700">
-            <FolderPlus className="w-4 h-4 mr-1 text-tyc-green" />
-            Create Course
-          </Button>
-          <Button variant="outline" size="sm" onClick={() => setNewModuleModalOpen(true)} className="dark:border-gray-700">
-            <Plus className="w-4 h-4 mr-1" />
-            Add Module
-          </Button>
-          <Button variant="primary" size="sm" onClick={() => {
-            setSelectedModuleId(selectedCourse?.modules?.[0]?.id || '');
-            setNewLessonModalOpen(true);
-          }}>
-            <Plus className="w-4 h-4 mr-1" />
-            Add Lesson
+          <Button variant="primary" size="sm" onClick={() => setNewCourseModalOpen(true)}>
+            <Plus className="w-4 h-4 mr-1.5" />
+            New Masterclass
           </Button>
         </div>
       </div>
 
-      {/* Course Selector Dropdown */}
-      <Card className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 dark:bg-[#151916] dark:border-gray-800">
-        <div className="flex items-center gap-3">
-          <BookOpen className="w-5 h-5 text-tyc-green shrink-0" />
-          <div>
-            <label className="text-[11px] font-bold text-tyc-muted dark:text-gray-400 uppercase block">Active Course Curriculum</label>
-            <select
-              value={selectedCourse?.id}
-              onChange={(e) => {
-                const found = courses.find(c => c.id === e.target.value);
-                if (found) setSelectedCourse(found);
-              }}
-              className="text-xs font-bold text-tyc-text dark:text-gray-100 bg-transparent focus:outline-none cursor-pointer mt-0.5"
-            >
-              {courses.map((c) => (
-                <option key={c.id} value={c.id} className="dark:bg-[#191D1A]">
-                  {c.title} ({c.difficulty})
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Status Workflow Selector */}
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-tyc-muted dark:text-gray-400 font-medium">Status:</span>
-          <select
-            value={selectedCourse?.status || 'published'}
-            onChange={(e) => handleStatusChange(e.target.value as any)}
-            className="text-xs bg-tyc-bg dark:bg-gray-800 border border-tyc-border dark:border-gray-700 rounded-lg px-2.5 py-1.5 font-semibold text-tyc-green dark:text-green-400 focus:outline-none cursor-pointer"
-          >
-            <option value="draft">Draft</option>
-            <option value="review">Under Review</option>
-            <option value="approved">Approved</option>
-            <option value="published">Published</option>
-            <option value="archived">Archived</option>
-          </select>
-        </div>
-      </Card>
-
-      {/* Hierarchy Explorer */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-tyc-text dark:text-white uppercase tracking-wider">
-            Curriculum Modules & Lessons Tree ({selectedCourse?.modules?.length || 0} Modules)
-          </h3>
-          <span className="text-xs text-tyc-muted dark:text-gray-400">
-            Total {selectedCourse?.lessonsCount || 0} Lessons &bull; ~{selectedCourse?.durationHours || 0}h Duration
-          </span>
-        </div>
-
-        {selectedCourse?.modules?.map((mod, modIdx) => (
-          <Card key={mod.id} className="p-5 space-y-4 border-tyc-border dark:border-gray-800 dark:bg-[#151916]">
-            <div className="flex items-center justify-between border-b border-tyc-border dark:border-gray-800 pb-3">
-              <div className="flex items-center gap-2.5">
-                <span className="w-6 h-6 rounded-lg bg-tyc-green text-white text-xs font-bold flex items-center justify-center">
-                  {modIdx + 1}
-                </span>
-                <div>
-                  <h4 className="text-xs font-bold text-tyc-text dark:text-white">{mod.title}</h4>
-                  <span className="text-[11px] text-tyc-muted dark:text-gray-400">{mod.lessons.length} Lessons &bull; ~{mod.durationMinutes} mins</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs py-1 px-2 dark:border-gray-700"
-                  onClick={() => {
-                    setSelectedModuleId(mod.id);
-                    setNewLessonModalOpen(true);
-                  }}
-                >
-                  <Plus className="w-3 h-3 mr-1" />
-                  Add Lesson
-                </Button>
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        {/* Left Column: Course Selector & Moderation Banner */}
+        <div className="lg:col-span-4 space-y-4">
+          <Card className="p-4 space-y-3 bg-white dark:bg-[#0c121e] border-slate-200 dark:border-slate-800 shadow-sm">
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-wider px-1">
+              Select Curriculum Track ({courseList.length})
             </div>
 
-            {/* Lessons in Module */}
-            <div className="divide-y divide-tyc-border/60 dark:divide-gray-800/60 pl-4 border-l-2 border-tyc-green/30 space-y-1">
-              {mod.lessons.map((les, lesIdx) => (
-                <div key={les.id} className="pt-2 pb-1 flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="text-tyc-muted dark:text-gray-500 text-[11px]">{modIdx + 1}.{lesIdx + 1}</span>
-                    <span className="font-semibold text-tyc-text dark:text-gray-200">{les.title}</span>
-                    <Badge variant={les.type === 'quiz' ? 'orange' : les.type === 'coding' ? 'green' : 'gray'} size="sm">
-                      {les.type}
-                    </Badge>
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 no-scrollbar">
+              {courseList.map((course) => (
+                <div
+                  key={course.id}
+                  onClick={() => setSelectedCourse(course)}
+                  className={`p-3 rounded-2xl cursor-pointer border transition-all text-xs space-y-1.5 ${
+                    selectedCourse.id === course.id
+                      ? 'bg-emerald-50/80 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-700 shadow-sm'
+                      : 'bg-slate-50/50 dark:bg-slate-900/40 border-slate-200 dark:border-slate-800 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="font-bold text-slate-900 dark:text-white truncate">
+                      {course.title}
+                    </span>
+                    <span className={`px-2 py-0.5 rounded-full text-[9.5px] font-black uppercase ${
+                      course.status === 'published' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' :
+                      course.status === 'submitted_for_review' ? 'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300' :
+                      course.status === 'changes_requested' ? 'bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-300' :
+                      'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-300'
+                    }`}>
+                      {course.status}
+                    </span>
                   </div>
-
-                  <div className="flex items-center gap-3 text-[11px] text-tyc-muted dark:text-gray-400">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {les.durationMinutes} mins
-                    </span>
-                    <span className="text-tyc-green dark:text-green-400 font-semibold flex items-center gap-1">
-                      <Check className="w-3 h-3" /> CDN Stream
-                    </span>
+                  <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <span>{course.modules?.length || 0} Modules &bull; {course.lessonsCount || 0} Lessons</span>
+                    <span className="font-semibold text-emerald-600">{course.difficulty}</span>
                   </div>
                 </div>
               ))}
             </div>
           </Card>
-        ))}
+        </div>
+
+        {/* Right Column: Active Course Editor & Governance Panel */}
+        <div className="lg:col-span-8 space-y-6">
+          {selectedCourse.id ? (
+            <Card className="p-6 space-y-6 bg-white dark:bg-[#0c121e] border-slate-200 dark:border-slate-800 shadow-sm">
+              
+              {/* Course Header & Moderation Status Controls */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+                      {selectedCourse.title}
+                    </h2>
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">
+                      Status: {selectedCourse.status}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-1">{selectedCourse.subtitle}</p>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* Governance Moderation Actions */}
+                  {selectedCourse.status === 'submitted_for_review' && (isAdmin || isSuperAdmin) && (
+                    <Button variant="primary" size="sm" onClick={() => setReviewDrawerOpen(true)}>
+                      <ShieldCheck className="w-4 h-4 mr-1.5" />
+                      Review & Approve Course
+                    </Button>
+                  )}
+
+                  {selectedCourse.status !== 'published' && (isAdmin || isSuperAdmin) && (
+                    <Button variant="outline" size="sm" onClick={handlePublishCourse} className="text-emerald-600 border-emerald-300 dark:border-emerald-800">
+                      <Check className="w-4 h-4 mr-1.5" />
+                      Publish Live
+                    </Button>
+                  )}
+
+                  {selectedCourse.status === 'published' && (isAdmin || isSuperAdmin) && (
+                    <Button variant="outline" size="sm" onClick={handleArchiveCourse} className="text-slate-500">
+                      Archive
+                    </Button>
+                  )}
+                </div>
+              </div>
+
+              {/* Review Notes Alert if Changes Requested */}
+              {selectedCourse.reviewNotes && (
+                <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-xs space-y-1">
+                  <div className="font-bold text-amber-800 dark:text-amber-300 flex items-center gap-1.5">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Admin Moderation Feedback:</span>
+                  </div>
+                  <p className="text-slate-700 dark:text-slate-300 text-[11px] leading-relaxed">
+                    "{selectedCourse.reviewNotes}"
+                  </p>
+                </div>
+              )}
+
+              {/* Module Hierarchy List */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-emerald-500" />
+                    Syllabus Modules & Lessons ({selectedCourse.modules?.length || 0} Modules)
+                  </h3>
+                  <Button variant="outline" size="sm" onClick={() => setNewModuleModalOpen(true)}>
+                    <Plus className="w-3.5 h-3.5 mr-1" />
+                    Add Module
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  {(selectedCourse.modules || []).map((module, mIdx) => (
+                    <div key={module.id} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-lg bg-emerald-500 text-slate-950 font-bold text-xs flex items-center justify-center">
+                            {mIdx + 1}
+                          </span>
+                          <h4 className="font-bold text-slate-900 dark:text-white text-xs">{module.title}</h4>
+                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => { setSelectedModuleId(module.id); setNewLessonModalOpen(true); }}
+                          className="text-[11px] py-1 px-2.5"
+                        >
+                          <Plus className="w-3 h-3 mr-1" />
+                          Add Lesson
+                        </Button>
+                      </div>
+
+                      {/* Lessons Sub-list */}
+                      <div className="pl-8 space-y-1.5">
+                        {(module.lessons || []).map((lesson, lIdx) => (
+                          <div key={lesson.id} className="flex items-center justify-between p-2 rounded-xl bg-white dark:bg-[#0c121e] border border-slate-200 dark:border-slate-800 text-xs">
+                            <div className="flex items-center gap-2">
+                              <Video className="w-3.5 h-3.5 text-slate-400" />
+                              <span className="font-semibold text-slate-800 dark:text-slate-200">{lesson.title}</span>
+                            </div>
+                            <span className="text-[10px] text-slate-400">{lesson.durationMinutes} mins</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Card>
+          ) : (
+            <Card className="p-8 text-center text-slate-400">
+              Select a course to view and edit its modules.
+            </Card>
+          )}
+        </div>
       </div>
 
-      {/* Add New Module Modal */}
+      {/* ========================================================================= */}
+      {/* MODALS                                                                    */}
+      {/* ========================================================================= */}
+
+      {/* Modal: Review & Decision */}
+      <Modal
+        isOpen={reviewDrawerOpen}
+        onClose={() => setReviewDrawerOpen(false)}
+        title="Admin Moderation: Course Review"
+      >
+        <div className="space-y-4 text-xs">
+          <p className="text-slate-500 dark:text-slate-400">
+            Review the submitted syllabus, module count, and lesson videos for <strong>{selectedCourse.title}</strong>.
+          </p>
+
+          <div>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">
+              Reviewer Notes / Feedback to Instructor
+            </label>
+            <textarea
+              value={reviewNotes}
+              onChange={(e) => setReviewNotes(e.target.value)}
+              placeholder="Provide comments or requested adjustments..."
+              rows={4}
+              className="w-full p-2.5 rounded-xl text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white focus:outline-none"
+            />
+          </div>
+
+          <div className="pt-3 flex flex-wrap justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleReviewDecision('changes_requested')}
+              className="text-orange-600 border-orange-200 hover:bg-orange-50"
+            >
+              Request Changes
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleReviewDecision('rejected')}
+              className="text-rose-600 border-rose-200 hover:bg-rose-50"
+            >
+              Reject
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={() => handleReviewDecision('approved')}
+            >
+              Approve Course
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Modal: Add Module */}
       <Modal
         isOpen={newModuleModalOpen}
         onClose={() => setNewModuleModalOpen(false)}
         title="Add Curriculum Module"
-        description={`Creating a new module under ${selectedCourse?.title}`}
-        maxWidth="md"
       >
-        <form onSubmit={handleAddModule} className="space-y-4 text-xs">
-          <Input
-            label="Module Title"
-            required
-            placeholder="e.g. Module 3: Advanced State Synchronization"
-            value={newModuleTitle}
-            onChange={(e) => setNewModuleTitle(e.target.value)}
-          />
+        <form onSubmit={handleAddModule} className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Module Title</label>
+            <Input
+              value={newModuleTitle}
+              onChange={(e) => setNewModuleTitle(e.target.value)}
+              placeholder="e.g. Module 3: Advanced Vector Embeddings & RAG"
+              required
+            />
+          </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-tyc-border dark:border-gray-800">
-            <Button variant="outline" size="sm" onClick={() => setNewModuleModalOpen(false)}>
+          <div className="pt-3 flex justify-end gap-2">
+            <Button variant="outline" size="sm" type="button" onClick={() => setNewModuleModalOpen(false)}>
               Cancel
             </Button>
             <Button variant="primary" size="sm" type="submit">
@@ -381,115 +515,102 @@ export const CourseCMSPage: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Add New Lesson Modal */}
+      {/* Modal: Add Lesson */}
       <Modal
         isOpen={newLessonModalOpen}
         onClose={() => setNewLessonModalOpen(false)}
-        title="Add New Lesson to Curriculum"
-        description={`Appending to ${selectedCourse?.title}`}
-        maxWidth="md"
+        title="Add Lesson to Module"
       >
-        <form onSubmit={handleAddLesson} className="space-y-4 text-xs">
-          <Input
-            label="Lesson Title"
-            required
-            placeholder="e.g. 2.3 Zustand Custom Storage Middleware"
-            value={newLessonTitle}
-            onChange={(e) => setNewLessonTitle(e.target.value)}
-          />
-
-          <Input
-            label="Video Stream URL (HLS / MP4 / YouTube)"
-            placeholder="https://example.com/stream.m3u8"
-            value={newLessonVideoUrl}
-            onChange={(e) => setNewLessonVideoUrl(e.target.value)}
-          />
+        <form onSubmit={handleAddLesson} className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Lesson Title</label>
+            <Input
+              value={newLessonTitle}
+              onChange={(e) => setNewLessonTitle(e.target.value)}
+              placeholder="e.g. Implementing Cosine Similarity in Python"
+              required
+            />
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-tyc-text dark:text-gray-300 mb-1">Lesson Type</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Duration (Minutes)</label>
+              <Input
+                type="number"
+                value={newLessonDuration}
+                onChange={(e) => setNewLessonDuration(Number(e.target.value))}
+                min={5}
+                required
+              />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Lesson Type</label>
               <select
                 value={newLessonType}
                 onChange={(e) => setNewLessonType(e.target.value as any)}
-                className="w-full bg-white dark:bg-gray-800 border border-tyc-border dark:border-gray-700 rounded-lg px-3 py-2 text-xs text-tyc-text dark:text-gray-100 focus:outline-none"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
               >
-                <option value="video">Video Stream</option>
-                <option value="coding">Coding Challenge</option>
-                <option value="quiz">Assessment Quiz</option>
-                <option value="project">Capstone Project</option>
+                <option value="video">Video Lecture</option>
+                <option value="article">Reading Article</option>
+                <option value="quiz">Interactive Quiz</option>
+                <option value="assignment">Coding Project</option>
               </select>
-            </div>
-
-            <div>
-              <label className="block font-medium text-tyc-text dark:text-gray-300 mb-1">Duration (Minutes)</label>
-              <input
-                type="number"
-                min="5"
-                max="120"
-                value={newLessonDuration}
-                onChange={(e) => setNewLessonDuration(Number(e.target.value))}
-                className="w-full bg-white dark:bg-gray-800 border border-tyc-border dark:border-gray-700 rounded-lg px-3 py-2 text-xs text-tyc-text dark:text-gray-100 focus:outline-none"
-              />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-tyc-border dark:border-gray-800">
-            <Button variant="outline" size="sm" onClick={() => setNewLessonModalOpen(false)}>
+          <div>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Embed / Video URL</label>
+            <Input
+              value={newLessonVideoUrl}
+              onChange={(e) => setNewLessonVideoUrl(e.target.value)}
+              placeholder="https://www.youtube.com/embed/..."
+            />
+          </div>
+
+          <div className="pt-3 flex justify-end gap-2">
+            <Button variant="outline" size="sm" type="button" onClick={() => setNewLessonModalOpen(false)}>
               Cancel
             </Button>
             <Button variant="primary" size="sm" type="submit">
-              Append Lesson
+              Save Lesson
             </Button>
           </div>
         </form>
       </Modal>
 
-      {/* Create New Course Modal */}
+      {/* Modal: New Course */}
       <Modal
         isOpen={newCourseModalOpen}
         onClose={() => setNewCourseModalOpen(false)}
-        title="Create New Course"
-        description="Publish a brand-new structured engineering course"
-        maxWidth="lg"
+        title="Initialize New Masterclass Curriculum"
       >
-        <form onSubmit={handleCreateCourse} className="space-y-4 text-xs">
-          <Input
-            label="Course Title"
-            required
-            placeholder="e.g. Distributed Systems & Microservices in Go"
-            value={newCourseTitle}
-            onChange={(e) => setNewCourseTitle(e.target.value)}
-          />
+        <form onSubmit={handleCreateCourse} className="space-y-4">
+          <div>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Masterclass Title</label>
+            <Input
+              value={newCourseTitle}
+              onChange={(e) => setNewCourseTitle(e.target.value)}
+              placeholder="e.g. Distributed Systems & High-Scale Microservices"
+              required
+            />
+          </div>
 
-          <Input
-            label="Course Subtitle / Tagline"
-            placeholder="e.g. High-throughput concurrency patterns, gRPC, and Kafka event streaming."
-            value={newCourseSubtitle}
-            onChange={(e) => setNewCourseSubtitle(e.target.value)}
-          />
+          <div>
+            <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Subtitle</label>
+            <Input
+              value={newCourseSubtitle}
+              onChange={(e) => setNewCourseSubtitle(e.target.value)}
+              placeholder="Master Kafka, gRPC, and Kubernetes architecture"
+            />
+          </div>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block font-medium text-tyc-text dark:text-gray-300 mb-1">Category</label>
-              <select
-                value={newCourseCategory}
-                onChange={(e) => setNewCourseCategory(e.target.value)}
-                className="w-full bg-white dark:bg-gray-800 border border-tyc-border dark:border-gray-700 rounded-lg px-3 py-2 text-xs text-tyc-text dark:text-gray-100 focus:outline-none"
-              >
-                <option value="Frontend & Full Stack">Frontend & Full Stack</option>
-                <option value="AI & Machine Learning">AI & Machine Learning</option>
-                <option value="Backend & Cloud">Backend & Cloud</option>
-                <option value="System Design">System Design</option>
-                <option value="Cybersecurity">Cybersecurity</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block font-medium text-tyc-text dark:text-gray-300 mb-1">Difficulty</label>
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Difficulty</label>
               <select
                 value={newCourseDifficulty}
                 onChange={(e) => setNewCourseDifficulty(e.target.value as any)}
-                className="w-full bg-white dark:bg-gray-800 border border-tyc-border dark:border-gray-700 rounded-lg px-3 py-2 text-xs text-tyc-text dark:text-gray-100 focus:outline-none"
+                className="w-full px-3 py-2 rounded-xl text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
               >
                 <option value="Beginner">Beginner</option>
                 <option value="Intermediate">Intermediate</option>
@@ -498,28 +619,28 @@ export const CourseCMSPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block font-medium text-tyc-text dark:text-gray-300 mb-1">Estimated Hours</label>
-              <input
+              <label className="text-xs font-bold text-slate-700 dark:text-slate-300 block mb-1">Est. Duration (Hours)</label>
+              <Input
                 type="number"
-                min="4"
-                max="100"
                 value={newCourseDuration}
                 onChange={(e) => setNewCourseDuration(Number(e.target.value))}
-                className="w-full bg-white dark:bg-gray-800 border border-tyc-border dark:border-gray-700 rounded-lg px-3 py-2 text-xs text-tyc-text dark:text-gray-100 focus:outline-none"
+                min={1}
+                required
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-tyc-border dark:border-gray-800">
-            <Button variant="outline" size="sm" onClick={() => setNewCourseModalOpen(false)}>
+          <div className="pt-3 flex justify-end gap-2">
+            <Button variant="outline" size="sm" type="button" onClick={() => setNewCourseModalOpen(false)}>
               Cancel
             </Button>
             <Button variant="primary" size="sm" type="submit">
-              Publish Course to Platform
+              Create Course
             </Button>
           </div>
         </form>
       </Modal>
+
     </div>
   );
 };

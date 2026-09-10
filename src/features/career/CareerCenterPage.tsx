@@ -54,24 +54,24 @@ export const CareerCenterPage: React.FC = () => {
       {/* Header */}
       <div className="space-y-2">
         <Breadcrumb items={[{ label: 'Career Opportunities' }]} />
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-tyc-text tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           Hiring Partner Career Portal
         </h1>
-        <p className="text-xs sm:text-sm text-tyc-muted max-w-2xl">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
           Direct recruitment fast-track for TYC certified developers. Apply with your verified portfolio and skill benchmarks.
         </p>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 border-b border-tyc-border pb-3">
+      <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
         {['All', 'Full-time', 'Internship'].map((type) => (
           <button
             key={type}
             onClick={() => setActiveFilter(type as any)}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${
               activeFilter === type
-                ? 'bg-tyc-green text-white shadow-sm'
-                : 'bg-white text-tyc-muted hover:text-tyc-text hover:bg-tyc-bg border border-tyc-border'
+                ? 'bg-emerald-500 text-slate-950 shadow-sm'
+                : 'bg-white dark:bg-[#0D121F] text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800'
             }`}
           >
             {type} Opportunities
@@ -82,118 +82,132 @@ export const CareerCenterPage: React.FC = () => {
       {/* Jobs & Internships List */}
       <div className="space-y-4">
         {filteredJobs.map((job) => (
-          <Card key={job.id} hoverable className="p-6 space-y-4 shadow-subtle border-tyc-border">
+          <Card
+            key={job.id}
+            hoverable
+            className={`p-6 space-y-4 shadow-sm dark:shadow-xl dark:bg-[#0D121F] dark:border-slate-800 ${
+              job.type === 'Internship'
+                ? 'bg-amber-50/60 hover:bg-amber-50/90 border-amber-200/90'
+                : 'bg-emerald-50/60 hover:bg-emerald-50/90 border-emerald-200/90'
+            }`}
+          >
             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
               <div className="flex items-start gap-4">
                 <img
                   src={job.companyLogo}
                   alt={job.company}
-                  className="w-12 h-12 rounded-xl object-cover border border-tyc-border shadow-subtle"
+                  className="w-12 h-12 rounded-2xl object-cover border border-slate-200 dark:border-slate-700 shadow-sm"
                 />
                 <div className="space-y-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base font-bold text-tyc-text">{job.title}</h3>
+                    <h3 className="text-base font-bold text-slate-900 dark:text-white">{job.title}</h3>
                     <Badge variant={job.type === 'Internship' ? 'orange' : 'green'} size="sm">
                       {job.type}
                     </Badge>
                   </div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-tyc-muted">
-                    <span className="font-semibold text-tyc-text">{job.company}</span>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                    <span className="font-semibold text-slate-800 dark:text-slate-200">{job.company}</span>
                     <span>&bull;</span>
                     <span className="flex items-center gap-1">
-                      <MapPin className="w-3.5 h-3.5" /> {job.location}
+                      <MapPin className="w-3.5 h-3.5" />
+                      {job.location}
                     </span>
                     <span>&bull;</span>
-                    <span className="font-semibold text-tyc-green">{job.salaryOrStipend}</span>
+                    <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold font-mono">
+                      <DollarSign className="w-3.5 h-3.5" />
+                      {job.salaryOrStipend}
+                    </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
-                <div className="text-right text-[11px] text-tyc-muted">
-                  Deadline: <strong className="text-tyc-text">{job.deadline}</strong>
-                </div>
-                {job.applied ? (
-                  <Badge variant="green" size="md">
-                    <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Applied
-                  </Badge>
-                ) : (
-                  <Button variant="primary" size="sm" onClick={() => setSelectedJob(job)}>
-                    Fast-Track Apply
-                  </Button>
-                )}
+              <div className="shrink-0 self-end sm:self-start">
+                <Button
+                  variant={job.applied ? "outline" : "primary"}
+                  size="sm"
+                  onClick={() => setSelectedJob(job)}
+                  disabled={job.applied}
+                  className="text-xs"
+                >
+                  {job.applied ? (
+                    <>
+                      <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-emerald-500" />
+                      Applied
+                    </>
+                  ) : (
+                    <>
+                      Apply with TYC Profile
+                      <Send className="w-3.5 h-3.5 ml-1" />
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
 
-            <p className="text-xs text-tyc-muted leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               {job.description}
             </p>
 
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-tyc-border text-xs">
-              <div className="flex flex-wrap items-center gap-1.5">
-                <span className="text-tyc-muted font-medium">Skills:</span>
-                {job.skills.map((sk) => (
-                  <span key={sk} className="text-[10px] px-2 py-0.5 bg-tyc-bg border border-tyc-border rounded text-tyc-text">
-                    {sk}
+            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="flex flex-wrap gap-1.5">
+                {job.skills.map((t) => (
+                  <span key={t} className="text-[11px] px-2.5 py-0.5 rounded-lg bg-slate-100 dark:bg-[#161F30] border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 font-medium">
+                    {t}
                   </span>
                 ))}
               </div>
 
-              <div className="flex items-center gap-1 text-tyc-green text-[11px] font-semibold">
-                <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Eligibility: {job.eligibility}</span>
-              </div>
+              <span className="text-[11px] text-slate-400 font-mono">
+                Deadline: {job.deadline}
+              </span>
             </div>
           </Card>
         ))}
       </div>
 
-      {/* Quick Fast-Track Apply Modal */}
-      <Modal
-        isOpen={!!selectedJob}
-        onClose={() => setSelectedJob(null)}
-        title={selectedJob ? `Apply to ${selectedJob.company}` : ''}
-        description={selectedJob?.title}
-        maxWidth="lg"
-      >
-        {selectedJob && (
-          <div className="space-y-4 text-xs">
-            <div className="p-3.5 bg-tyc-green-soft border border-tyc-green/30 rounded-xl space-y-1.5">
-              <div className="flex items-center gap-2 text-tyc-green font-bold">
-                <Sparkles className="w-4 h-4" />
-                <span>TYC Fast-Track Talent Matching</span>
+      {/* Application Modal */}
+      {selectedJob && (
+        <Modal
+          isOpen={true}
+          onClose={() => setSelectedJob(null)}
+          title={`Apply: ${selectedJob.title}`}
+          size="md"
+        >
+          <div className="space-y-4 p-1">
+            <div className="p-4 bg-slate-50 dark:bg-[#161F30] rounded-2xl border border-slate-200 dark:border-slate-800 space-y-2 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-900 dark:text-white text-sm">{selectedJob.company}</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold font-mono">{selectedJob.salaryOrStipend}</span>
               </div>
-              <p className="text-tyc-text leading-relaxed">
-                Your application will automatically bundle your <strong>Verified Portfolio</strong>, <strong>Capstone Scores (98%)</strong>, and <strong>2 Cryptographic Certificates</strong>.
+              <p className="text-slate-600 dark:text-slate-400">{selectedJob.description}</p>
+            </div>
+
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-xl text-xs space-y-1">
+              <div className="flex items-center gap-1.5 font-bold text-emerald-800 dark:text-emerald-300">
+                <ShieldCheck className="w-4 h-4" />
+                <span>Verified Candidate Dossier Attached</span>
+              </div>
+              <p className="text-slate-600 dark:text-slate-300 text-[11px]">
+                Your application automatically includes your completed project repo links, algorithmic streak, and verified certificates.
               </p>
             </div>
 
-            <div className="space-y-2">
-              <h4 className="font-bold text-tyc-text">Candidate Profile Attachment:</h4>
-              <div className="p-3 bg-tyc-bg rounded-lg border border-tyc-border space-y-1">
-                <div><strong>Candidate:</strong> {user?.name || 'Alex Rivera'} ({user?.email || 'alex.rivera@tyc.dev'})</div>
-                <div><strong>Target Role:</strong> {user?.careerGoal || 'Full Stack AI Developer'}</div>
-                <div><strong>Verified Skills:</strong> React 19, TypeScript, Python FastAPI, PostgreSQL</div>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-3 border-t border-tyc-border">
+            <div className="flex justify-end gap-2 pt-2">
               <Button variant="outline" size="sm" onClick={() => setSelectedJob(null)}>
                 Cancel
               </Button>
               <Button
                 variant="primary"
                 size="sm"
-                isLoading={isApplying}
                 onClick={() => handleQuickApply(selectedJob)}
+                isLoading={isApplying}
               >
-                <Send className="w-3.5 h-3.5 mr-1" />
-                Confirm Application
+                Submit Fast-Track Application
               </Button>
             </div>
           </div>
-        )}
-      </Modal>
+        </Modal>
+      )}
     </div>
   );
 };

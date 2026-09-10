@@ -10,14 +10,32 @@ import {
   Hackathon,
   CommunityPost,
   NotificationItem,
+  ActivityLog,
+  Assignment,
+  AssignmentSubmission,
+  Organization,
+  Cohort,
+  ResourceAccessOverride,
+  RefundRequest
 } from '../types';
 
 export const mockCurrentUser: User = {
   id: 'usr_8829',
   name: 'Alex Rivera',
   email: 'alex.rivera@tyc.dev',
+  passwordHash: 'alex@123',
   role: 'student',
   avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  phone: '+1 (555) 234-8901',
+  college: 'Stanford Institute of Technology',
+  branch: 'Computer Science & AI',
+  year: '3rd Year',
+  status: 'active',
+  accountStatus: 'active',
+  organizationId: 'org_tyc_core',
+  organizationName: 'Traya Yukti Academic Partner',
+  department: 'Computer Science & AI',
+  lastLogin: 'Just now',
   careerGoal: 'Full Stack AI Developer',
   educationLevel: 'Bachelor of Computer Science (3rd Year)',
   experienceLevel: 'Intermediate',
@@ -42,6 +60,300 @@ export const mockCurrentUser: User = {
     { id: 'sk_6', name: 'Data Structures & Algo', level: 70, category: 'Core CS', verified: false },
   ],
 };
+
+export const mockOwnerUser: User = {
+  id: 'usr_owner',
+  name: 'Kavya Guntaka (Super Admin)',
+  email: 'owner@tyc.dev',
+  passwordHash: 'owner@123',
+  role: 'owner',
+  avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+  phone: '+1 (555) 999-0001',
+  college: 'Traya Yukti Core Labs',
+  branch: 'Platform Architecture & AI',
+  year: 'Executive',
+  status: 'active',
+  accountStatus: 'active',
+  organizationId: 'org_tyc_core',
+  organizationName: 'TYC Global Platform',
+  department: 'Platform Architecture & AI',
+  lastLogin: 'Just now',
+  careerGoal: 'Website Creator & Chief Architect',
+  bio: 'Platform Super Administrator with unrestricted administrative, faculty, and database orchestration authority.',
+  streakDays: 45,
+  longestStreak: 60,
+  weeklyHoursSpent: 40,
+  enrolledCourseIds: ['crs_1', 'crs_2', 'crs_3', 'crs_4', 'crs_5'],
+  completedCourseIds: ['crs_1', 'crs_2', 'crs_3'],
+  completedLessonIds: ['les_1_1', 'les_1_2'],
+  certificatesEarned: 5,
+  joinedDate: 'Dec 2025',
+  skills: [
+    { id: 'sk_1', name: 'System Architecture', level: 98, category: 'Core CS', verified: true },
+    { id: 'sk_2', name: 'React 19 & TypeScript', level: 96, category: 'Frontend', verified: true },
+    { id: 'sk_3', name: 'AI & LLM Orchestration', level: 95, category: 'AI/ML', verified: true }
+  ]
+};
+
+export const mockSuperAdminUser: User = {
+  id: 'usr_superadmin',
+  name: 'HCS Kolluru (Super Admin)',
+  email: 'hcskolluru@gmail.com',
+  passwordHash: 'tyc@2021',
+  role: 'superadmin',
+  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+  phone: '+91 98765 43210',
+  college: 'TYC Root Authority',
+  branch: 'Executive Command & System Architecture',
+  year: 'Executive',
+  status: 'active',
+  accountStatus: 'active',
+  organizationId: 'org_tyc_core',
+  organizationName: 'TYC Global Infrastructure',
+  department: 'Executive Platform Governance',
+  lastLogin: 'Just now',
+  careerGoal: 'Chief Executive & Platform Super Administrator',
+  bio: 'Primary Super Administrator with full root authority across all multi-tenant organizations, RBAC configurations, database orchestration, and financial operations.',
+  streakDays: 60,
+  longestStreak: 90,
+  weeklyHoursSpent: 45,
+  enrolledCourseIds: ['crs_1', 'crs_2', 'crs_3', 'crs_4', 'crs_5'],
+  completedCourseIds: ['crs_1', 'crs_2', 'crs_3'],
+  completedLessonIds: ['les_1_1', 'les_1_2'],
+  certificatesEarned: 5,
+  joinedDate: 'Jan 2021',
+  skills: [
+    { id: 'sk_1', name: 'Root Infrastructure & RBAC', level: 100, category: 'Core CS', verified: true },
+    { id: 'sk_2', name: 'Enterprise Architecture', level: 99, category: 'Backend', verified: true },
+    { id: 'sk_3', name: 'AI & LLM Orchestration', level: 98, category: 'AI/ML', verified: true }
+  ]
+};
+
+export const mockSuperAdminAlias: User = {
+  id: 'usr_superadmin_alias',
+  name: 'Super Admin Executive',
+  email: 'superadmin@tyc.dev',
+  passwordHash: 'SuperAdmin@123',
+  role: 'superadmin',
+  avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+  phone: '+1 (555) 999-0002',
+  college: 'TYC Root Authority',
+  branch: 'Executive Command',
+  year: 'Executive',
+  status: 'active',
+  accountStatus: 'active',
+  organizationId: 'org_tyc_core',
+  organizationName: 'TYC Global Infrastructure',
+  department: 'Global Operations',
+  lastLogin: 'Just now',
+  careerGoal: 'Chief Security Officer',
+  bio: 'Root authority with exclusive access to Level 1 Super Admin Terminal, security logs, and role management.',
+  streakDays: 40,
+  longestStreak: 55,
+  weeklyHoursSpent: 35,
+  enrolledCourseIds: ['crs_1', 'crs_2'],
+  completedCourseIds: ['crs_1'],
+  completedLessonIds: ['les_1_1'],
+  certificatesEarned: 4,
+  joinedDate: 'Dec 2025',
+  skills: [
+    { id: 'sk_1', name: 'Security Governance', level: 99, category: 'Core CS', verified: true }
+  ]
+};
+
+export const mockAdminUser: User = {
+  id: 'usr_admin',
+  name: 'Platform Administrator',
+  email: 'admin@tyc.dev',
+  passwordHash: 'admin@123',
+  role: 'admin',
+  avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  phone: '+1 (555) 888-0002',
+  college: 'TYC Operations Center',
+  branch: 'Education Management',
+  year: 'Staff',
+  status: 'active',
+  accountStatus: 'active',
+  organizationId: 'org_tyc_core',
+  organizationName: 'Traya Yukti Academic Partner',
+  department: 'Computer Science & AI',
+  lastLogin: '10 mins ago',
+  careerGoal: 'Platform Operations Director',
+  bio: 'Oversees student admissions, course CMS publication, instructor rosters, and metrics.',
+  streakDays: 30,
+  longestStreak: 45,
+  weeklyHoursSpent: 25,
+  enrolledCourseIds: [],
+  completedCourseIds: [],
+  completedLessonIds: [],
+  certificatesEarned: 3,
+  joinedDate: 'Jan 2026',
+  skills: [
+    { id: 'sk_1', name: 'Curriculum Ops', level: 90, category: 'Core CS', verified: true }
+  ]
+};
+
+export const mockInstructorUser: User = {
+  id: 'usr_inst_1',
+  name: 'Dr. Sarah Chen (Instructor)',
+  email: 'sarah.chen@tyc.dev',
+  passwordHash: 'sarah@123',
+  role: 'instructor',
+  avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+  phone: '+1 (555) 777-0003',
+  college: 'MIT AI Lab / TYC Faculty',
+  branch: 'Computer Science & Machine Learning',
+  year: 'Faculty',
+  status: 'active',
+  accountStatus: 'active',
+  organizationId: 'org_tyc_core',
+  organizationName: 'Traya Yukti Academic Partner',
+  department: 'Computer Science & AI',
+  assignedCourseIds: ['crs_1', 'crs_4'],
+  lastLogin: '25 mins ago',
+  careerGoal: 'Senior AI & Cloud Instructor',
+  bio: 'Former Meta Staff AI Engineer & Stanford PhD. Mentoring the next generation of engineers.',
+  streakDays: 28,
+  longestStreak: 40,
+  weeklyHoursSpent: 30,
+  enrolledCourseIds: [],
+  completedCourseIds: [],
+  completedLessonIds: [],
+  certificatesEarned: 4,
+  joinedDate: 'Jan 2026',
+  skills: [
+    { id: 'sk_1', name: 'Machine Learning', level: 98, category: 'AI/ML', verified: true },
+    { id: 'sk_2', name: 'Python Backend', level: 95, category: 'Backend', verified: true }
+  ]
+};
+
+export const mockInstructorAlias: User = {
+  id: 'usr_instructor_alias',
+  name: 'Lead Instructor',
+  email: 'instructor@tyc.dev',
+  passwordHash: 'instructor@123',
+  role: 'instructor',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  phone: '+1 (555) 777-0004',
+  college: 'TYC Faculty Roster',
+  branch: 'Full Stack Engineering',
+  year: 'Faculty',
+  status: 'active',
+  lastLogin: 'Just now',
+  careerGoal: 'Full Stack AI Instructor',
+  bio: 'Faculty instructor overseeing grading, live classrooms, and coding laboratories.',
+  streakDays: 25,
+  longestStreak: 35,
+  weeklyHoursSpent: 28,
+  enrolledCourseIds: [],
+  completedCourseIds: [],
+  completedLessonIds: [],
+  certificatesEarned: 3,
+  joinedDate: 'Jan 2026',
+  skills: [
+    { id: 'sk_1', name: 'System Architecture', level: 92, category: 'Core CS', verified: true }
+  ]
+};
+
+export const mockGenericStudent: User = {
+  id: 'usr_student_alias',
+  name: 'Student Learner',
+  email: 'student@tyc.dev',
+  passwordHash: 'student@123',
+  role: 'student',
+  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  phone: '+1 (555) 123-4567',
+  college: 'Institute of Technology',
+  branch: 'Computer Science',
+  year: '3rd Year',
+  status: 'active',
+  lastLogin: 'Just now',
+  careerGoal: 'Full Stack AI Developer',
+  bio: 'Undergraduate student learning full-stack development and artificial intelligence on TYC.',
+  streakDays: 14,
+  longestStreak: 28,
+  weeklyHoursSpent: 18.5,
+  enrolledCourseIds: ['crs_1', 'crs_2', 'crs_4'],
+  completedCourseIds: ['crs_5'],
+  completedLessonIds: ['les_1_1', 'les_1_2', 'les_1_3'],
+  certificatesEarned: 2,
+  joinedDate: 'Jan 2026',
+  onboardingCompleted: false,
+  skills: [
+    { id: 'sk_1', name: 'React 19', level: 75, category: 'Frontend', verified: true },
+    { id: 'sk_2', name: 'TypeScript', level: 70, category: 'Frontend', verified: true }
+  ]
+};
+
+export const mockStudent2: User = {
+  id: 'usr_8830',
+  name: 'Priya Sharma',
+  email: 'priya.sharma@tyc.dev',
+  passwordHash: 'priya@123',
+  role: 'student',
+  avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+  phone: '+1 (555) 345-6789',
+  college: 'National Institute of Tech',
+  branch: 'Information Technology',
+  year: '4th Year',
+  status: 'active',
+  lastLogin: '2 hours ago',
+  careerGoal: 'Cloud & DevOps Architect',
+  bio: 'Specializing in Kubernetes, Docker, and distributed cloud computing.',
+  streakDays: 21,
+  longestStreak: 35,
+  weeklyHoursSpent: 22,
+  enrolledCourseIds: ['crs_1', 'crs_3'],
+  completedCourseIds: ['crs_1'],
+  completedLessonIds: ['les_1_1', 'les_1_2', 'les_1_3'],
+  certificatesEarned: 3,
+  joinedDate: 'Jan 2026',
+  skills: [
+    { id: 'sk_1', name: 'Docker & K8s', level: 85, category: 'DevOps', verified: true },
+    { id: 'sk_2', name: 'TypeScript', level: 80, category: 'Frontend', verified: true }
+  ]
+};
+
+export const mockStudent3: User = {
+  id: 'usr_8831',
+  name: 'Marcus Vance',
+  email: 'marcus.vance@tyc.dev',
+  passwordHash: 'marcus@123',
+  role: 'student',
+  avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  phone: '+1 (555) 456-7890',
+  college: 'Berkeley Engineering',
+  branch: 'Data Science & Systems',
+  year: '2nd Year',
+  status: 'inactive',
+  lastLogin: '5 days ago',
+  careerGoal: 'Data Systems Engineer',
+  bio: 'Learning high throughput SQL & stream processing.',
+  streakDays: 4,
+  longestStreak: 12,
+  weeklyHoursSpent: 6,
+  enrolledCourseIds: ['crs_2'],
+  completedCourseIds: [],
+  completedLessonIds: ['les_2_1'],
+  certificatesEarned: 1,
+  joinedDate: 'Feb 2026',
+  skills: [
+    { id: 'sk_1', name: 'Python', level: 75, category: 'Backend', verified: true }
+  ]
+};
+
+export const mockAllSeedUsers: User[] = [
+  mockOwnerUser,
+  mockSuperAdminUser,
+  mockSuperAdminAlias,
+  mockAdminUser,
+  mockInstructorUser,
+  mockInstructorAlias,
+  mockGenericStudent,
+  mockCurrentUser,
+  mockStudent2,
+  mockStudent3
+];
 
 export const mockCourses: Course[] = [
   {
@@ -1092,3 +1404,302 @@ export const mockAdminStats = {
     { title: 'Python Backend with FastAPI', students: 4520, rating: 4.88 },
   ]
 };
+
+export const mockInitialActivityLogs: ActivityLog[] = [
+  {
+    id: 'act_1',
+    userId: 'usr_8829',
+    userName: 'Alex Rivera',
+    userRole: 'student',
+    activityType: 'lesson_completed',
+    title: 'Completed Lesson 1.2: React 19 State & useOptimistic',
+    description: 'Mastered optimistic UI patterns and useActionState mutation flows.',
+    relatedId: 'crs_1',
+    relatedTitle: 'Full Stack React 19 Architecture',
+    timestamp: '2 hours ago'
+  },
+  {
+    id: 'act_2',
+    userId: 'usr_8829',
+    userName: 'Alex Rivera',
+    userRole: 'student',
+    activityType: 'project_submitted',
+    title: 'Submitted AI Code Reviewer & PR Bot (Milestone 1)',
+    description: 'Submitted GitHub Webhook pipeline implementation for instructor review.',
+    relatedId: 'prj_1',
+    relatedTitle: 'Automated AI Code Reviewer Bot',
+    timestamp: '1 day ago'
+  },
+  {
+    id: 'act_3',
+    userId: 'usr_8829',
+    userName: 'Alex Rivera',
+    userRole: 'student',
+    activityType: 'coding_challenge_solved',
+    title: 'Solved Target Coding Challenge: Sliding Window Maximum',
+    description: 'Passed all 18 automated runtime test cases with 98% runtime efficiency.',
+    relatedId: 'prob_2',
+    relatedTitle: 'Sliding Window Maximum',
+    timestamp: '2 days ago'
+  },
+  {
+    id: 'act_4',
+    userId: 'usr_8829',
+    userName: 'Alex Rivera',
+    userRole: 'student',
+    activityType: 'quiz_passed',
+    title: 'Passed Module 1 Benchmark: TypeScript & Hooks',
+    description: 'Scored 100% on the theoretical and code analysis assessment.',
+    relatedId: 'crs_1',
+    relatedTitle: 'Full Stack React 19 Architecture',
+    timestamp: '3 days ago'
+  },
+  {
+    id: 'act_5',
+    userId: 'usr_8829',
+    userName: 'Alex Rivera',
+    userRole: 'student',
+    activityType: 'course_enrolled',
+    title: 'Enrolled in Generative AI & LLM Engineering Masterclass',
+    description: 'Started comprehensive LangChain, LlamaIndex, and Vector DB roadmap.',
+    relatedId: 'crs_2',
+    relatedTitle: 'Generative AI & LLM Engineering',
+    timestamp: '5 days ago'
+  }
+];
+
+export const mockAssignments: Assignment[] = [
+  {
+    id: 'asg_1',
+    courseId: 'crs_1',
+    courseTitle: 'Full Stack React 19 & TypeScript',
+    instructorId: 'usr_inst_1',
+    instructorName: 'Dr. Sarah Chen',
+    title: 'Assignment 1: Custom Server Action Hook with Optimistic Rollback',
+    description: 'Implement a reusable custom hook that performs optimistic UI caching and automatic fallback rollback on simulated network latency or 500 status codes.',
+    dueDate: '2026-09-15',
+    totalMarks: 100,
+    submissionsCount: 42
+  },
+  {
+    id: 'asg_2',
+    courseId: 'crs_2',
+    courseTitle: 'Generative AI & LLM Engineering',
+    instructorId: 'usr_inst_1',
+    instructorName: 'Dr. Sarah Chen',
+    title: 'Assignment 2: Hybrid Keyword + Dense Vector Search Retriever',
+    description: 'Build a reciprocal rank fusion retriever combining BM25 keyword matching with OpenAI text-embedding-3 cosine similarity.',
+    dueDate: '2026-09-22',
+    totalMarks: 100,
+    submissionsCount: 28
+  }
+];
+
+export const mockAssignmentSubmissions: AssignmentSubmission[] = [
+  {
+    id: 'sub_1',
+    assignmentId: 'asg_1',
+    assignmentTitle: 'Custom Server Action Hook with Optimistic Rollback',
+    courseId: 'crs_1',
+    courseTitle: 'Full Stack React 19 & TypeScript',
+    studentId: 'usr_8829',
+    studentName: 'Alex Rivera',
+    studentEmail: 'alex.rivera@tyc.dev',
+    studentAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    content: 'Completed the custom useOptimisticAction hook with exponential backoff and error rollback boundary test suite.',
+    submissionUrl: 'https://github.com/alexrivera-tyc/react19-optimistic-actions',
+    submittedAt: '2026-08-20T14:30:00Z',
+    status: 'reviewed',
+    marksObtained: 96,
+    maxMarks: 100,
+    feedback: 'Excellent TypeScript type narrowing and clean error rollback handlers! High production quality code.',
+    reviewedAt: '2026-08-21T09:15:00Z',
+    reviewedBy: 'Dr. Sarah Chen'
+  },
+  {
+    id: 'sub_2',
+    assignmentId: 'asg_1',
+    assignmentTitle: 'Custom Server Action Hook with Optimistic Rollback',
+    courseId: 'crs_1',
+    courseTitle: 'Full Stack React 19 & TypeScript',
+    studentId: 'usr_8830',
+    studentName: 'Priya Sharma',
+    studentEmail: 'priya.sharma@tyc.dev',
+    studentAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    content: 'Attached implementation with full test coverage using Vitest and React Testing Library.',
+    submissionUrl: 'https://github.com/priyasharma/react-actions-demo',
+    submittedAt: '2026-08-21T18:20:00Z',
+    status: 'pending',
+    maxMarks: 100
+  },
+  {
+    id: 'sub_3',
+    assignmentId: 'asg_2',
+    assignmentTitle: 'Hybrid Keyword + Dense Vector Search Retriever',
+    courseId: 'crs_2',
+    courseTitle: 'Generative AI & LLM Engineering',
+    studentId: 'usr_8831',
+    studentName: 'Marcus Vance',
+    studentEmail: 'marcus.vance@tyc.dev',
+    studentAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+    content: 'Implemented RRF algorithm in Python FastAPI with Pinecone vector DB integration.',
+    submissionUrl: 'https://github.com/marcusvance/hybrid-rag-retriever',
+    submittedAt: '2026-08-22T08:10:00Z',
+    status: 'pending',
+    maxMarks: 100
+  }
+];
+
+export const mockOrganizations: Organization[] = [
+  {
+    id: 'org_tyc_core',
+    name: 'Traya Yukti Academic Consortium',
+    slug: 'tyc-academic',
+    tier: 'Enterprise',
+    status: 'active',
+    adminIds: ['usr_admin'],
+    maxStudents: 5000,
+    studentCount: 3840,
+    createdAt: '2026-01-01T00:00:00Z',
+    departments: [
+      {
+        id: 'dept_cs_ai',
+        organizationId: 'org_tyc_core',
+        name: 'Computer Science & AI',
+        headName: 'Dr. Sarah Chen',
+        headEmail: 'sarah.chen@tyc.dev',
+        studentCount: 2450,
+        courseCount: 18
+      },
+      {
+        id: 'dept_cloud_devops',
+        organizationId: 'org_tyc_core',
+        name: 'Cloud & DevOps Engineering',
+        headName: 'David K. Vance',
+        headEmail: 'david.vance@tyc.dev',
+        studentCount: 1390,
+        courseCount: 10
+      }
+    ]
+  },
+  {
+    id: 'org_mit_ai_lab',
+    name: 'MIT Frontier AI Research Center',
+    slug: 'mit-ai-lab',
+    tier: 'Global Partner',
+    status: 'active',
+    adminIds: ['usr_admin'],
+    maxStudents: 1500,
+    studentCount: 920,
+    createdAt: '2026-02-15T00:00:00Z',
+    departments: [
+      {
+        id: 'dept_genai',
+        organizationId: 'org_mit_ai_lab',
+        name: 'Autonomous Agents & LLMs',
+        headName: 'Prof. Elena Rostova',
+        headEmail: 'elena.rostova@mit.edu',
+        studentCount: 920,
+        courseCount: 6
+      }
+    ]
+  }
+];
+
+export const mockCohorts: Cohort[] = [
+  {
+    id: 'cohort_2026_spring_ai',
+    organizationId: 'org_tyc_core',
+    departmentId: 'dept_cs_ai',
+    name: 'Spring 2026 AI Fellows Cohort',
+    code: 'TYC-2026-SP-AI',
+    description: 'Premier fast-track AI & LLM Engineering batch with weekly mentor-guided labs.',
+    assignedCourseIds: ['crs_1', 'crs_2', 'crs_4'],
+    studentIds: ['usr_8829', 'usr_8830', 'usr_8831'],
+    startDate: '2026-02-01',
+    endDate: '2026-06-30',
+    status: 'active'
+  },
+  {
+    id: 'cohort_2026_cloud_devops',
+    organizationId: 'org_tyc_core',
+    departmentId: 'dept_cloud_devops',
+    name: 'Cloud Native & Kubernetes Masters',
+    code: 'TYC-2026-CN-K8S',
+    description: 'Enterprise microservices, Terraform, and Kubernetes cluster operations.',
+    assignedCourseIds: ['crs_3', 'crs_5'],
+    studentIds: ['usr_8832', 'usr_8833'],
+    startDate: '2026-03-01',
+    endDate: '2026-07-31',
+    status: 'active'
+  }
+];
+
+export const mockResourceOverrides: ResourceAccessOverride[] = [
+  {
+    id: 'res_ovr_1',
+    studentId: 'usr_8829',
+    studentName: 'Alex Rivera',
+    studentEmail: 'alex.rivera@tyc.dev',
+    instructorId: 'usr_inst_1',
+    instructorName: 'Dr. Sarah Chen',
+    resourceId: 'datalab_gpu_cluster_a100',
+    resourceTitle: 'Cloud DataLab: NVIDIA A100 40GB High-Memory Instance',
+    resourceType: 'datalab',
+    reason: 'Capstone LLM Fine-Tuning and Evaluation Research project.',
+    startDate: '2026-09-01',
+    expiryDate: '2026-09-20',
+    status: 'active',
+    createdAt: '2026-09-01T10:00:00Z'
+  },
+  {
+    id: 'res_ovr_2',
+    studentId: 'usr_8830',
+    studentName: 'Priya Sharma',
+    studentEmail: 'priya.sharma@tyc.dev',
+    instructorId: 'usr_inst_1',
+    instructorName: 'Dr. Sarah Chen',
+    resourceId: 'crs_2',
+    resourceTitle: 'Generative AI & LLM Engineering Course Access',
+    resourceType: 'course',
+    reason: 'Merit scholarship extension for advanced NLP benchmark testing.',
+    startDate: '2026-08-15',
+    expiryDate: '2026-09-30',
+    status: 'active',
+    createdAt: '2026-08-15T14:30:00Z'
+  }
+];
+
+export const mockRefundRequests: RefundRequest[] = [
+  {
+    id: 'ref_101',
+    studentId: 'usr_8831',
+    studentName: 'Marcus Vance',
+    studentEmail: 'marcus.vance@tyc.dev',
+    courseId: 'crs_3',
+    courseTitle: 'Production Microservices & Go',
+    amount: 14999,
+    currency: 'INR',
+    reason: 'Accidental duplicate enrollment during campus registration.',
+    status: 'pending',
+    requestedAt: '2026-09-02T11:20:00Z'
+  },
+  {
+    id: 'ref_102',
+    studentId: 'usr_8834',
+    studentName: 'Aarav Patel',
+    studentEmail: 'aarav.patel@tyc.dev',
+    courseId: 'crs_5',
+    courseTitle: 'Advanced Data Structures & Algorithms',
+    amount: 9999,
+    currency: 'INR',
+    reason: 'Course prerequisite clash with semester examination timetable.',
+    status: 'approved',
+    requestedAt: '2026-08-28T09:15:00Z',
+    reviewedAt: '2026-08-29T10:00:00Z',
+    reviewedBy: 'Platform Administrator',
+    reviewNotes: 'Verified zero lesson consumption prior to refund request window.'
+  }
+];
+
+

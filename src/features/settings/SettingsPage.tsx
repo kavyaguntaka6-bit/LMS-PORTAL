@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLMS } from '../../context/LMSContext';
 import { useNotifications } from '../../context/NotificationContext';
 import {
   User as UserIcon,
   Bell,
   Save,
-  Globe
+  Globe,
+  Sparkles
 } from 'lucide-react';
 import { GithubIcon, LinkedinIcon } from '../../components/shared/SocialIcons';
 import { Button } from '../../components/ui/Button';
@@ -15,6 +17,7 @@ import { Breadcrumb } from '../../components/shared/Breadcrumb';
 
 export const SettingsPage: React.FC = () => {
   const { user, updateProfile } = useAuth();
+  const { setIsOnboardingOpen } = useLMS();
   const { toast } = useNotifications();
 
   const [name, setName] = useState(user?.name || 'Alex Rivera');
@@ -52,16 +55,16 @@ export const SettingsPage: React.FC = () => {
       {/* Header */}
       <div className="space-y-2">
         <Breadcrumb items={[{ label: 'Account Settings' }]} />
-        <h1 className="text-2xl font-bold text-tyc-text tracking-tight">Account & Learning Settings</h1>
-        <p className="text-xs text-tyc-muted">Manage your public profile, career targets, and telemetry preferences.</p>
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">Account & Learning Settings</h1>
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Manage your public profile, career targets, and telemetry preferences.</p>
       </div>
 
       <form onSubmit={handleSaveProfile} className="space-y-6">
         {/* Card 1: Personal Info */}
-        <Card className="p-6 space-y-5 shadow-subtle">
-          <div className="flex items-center gap-2 border-b border-tyc-border pb-3">
-            <UserIcon className="w-4 h-4 text-tyc-green" />
-            <h3 className="text-sm font-bold text-tyc-text">Profile Information</h3>
+        <Card className="p-6 space-y-5 shadow-sm dark:shadow-xl">
+          <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <UserIcon className="w-4 h-4 text-emerald-500" />
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Profile Information</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -75,7 +78,7 @@ export const SettingsPage: React.FC = () => {
               label="Email Address"
               value={user?.email || 'alex@tyc.dev'}
               disabled
-              helperText="Managed by university / corporate SSO"
+              helperText="Managed by corporate / university SSO"
             />
           </div>
 
@@ -86,84 +89,117 @@ export const SettingsPage: React.FC = () => {
             required
           />
 
-          <div>
-            <label className="block text-xs font-medium text-tyc-text mb-1">Developer Bio</label>
+          <div className="space-y-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">Developer Bio</label>
             <textarea
               rows={3}
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              className="w-full text-xs bg-white border border-tyc-border rounded-lg p-3 text-tyc-text focus:outline-none focus:border-tyc-green"
+              className="w-full text-xs bg-slate-50 dark:bg-[#161F30] border border-slate-200 dark:border-slate-800 rounded-xl p-3 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-emerald-500"
             />
           </div>
         </Card>
 
         {/* Card 2: Connected Accounts */}
-        <Card className="p-6 space-y-4 shadow-subtle">
-          <div className="flex items-center gap-2 border-b border-tyc-border pb-3">
-            <Globe className="w-4 h-4 text-tyc-orange" />
-            <h3 className="text-sm font-bold text-tyc-text">Connected Developer Profiles</h3>
+        <Card className="p-6 space-y-5 shadow-sm dark:shadow-xl">
+          <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <Globe className="w-4 h-4 text-cyan-500" />
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Public Links</h3>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="GitHub Profile URL"
+              leftIcon={<GithubIcon className="w-4 h-4" />}
               value={githubUrl}
               onChange={(e) => setGithubUrl(e.target.value)}
-              leftIcon={<GithubIcon className="w-4 h-4" />}
             />
             <Input
               label="LinkedIn Profile URL"
+              leftIcon={<LinkedinIcon className="w-4 h-4" />}
               value={linkedinUrl}
               onChange={(e) => setLinkedinUrl(e.target.value)}
-              leftIcon={<LinkedinIcon className="w-4 h-4" />}
             />
           </div>
         </Card>
 
         {/* Card 3: Notification Preferences */}
-        <Card className="p-6 space-y-4 shadow-subtle">
-          <div className="flex items-center gap-2 border-b border-tyc-border pb-3">
-            <Bell className="w-4 h-4 text-purple-600" />
-            <h3 className="text-sm font-bold text-tyc-text">Notification Preferences</h3>
+        <Card className="p-6 space-y-4 shadow-sm dark:shadow-xl">
+          <div className="flex items-center gap-2 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <Bell className="w-4 h-4 text-orange-500" />
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white">Email & Dispatch Alerts</h3>
           </div>
 
           <div className="space-y-3 text-xs">
-            <label className="flex items-center gap-2.5 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={emailAlerts}
                 onChange={(e) => setEmailAlerts(e.target.checked)}
-                className="rounded border-tyc-border text-tyc-green focus:ring-tyc-green"
+                className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500/20"
               />
-              <span className="text-tyc-text">Weekly Tech Dispatch & Architecture Breakdowns</span>
+              <div>
+                <span className="font-bold text-slate-800 dark:text-slate-200">Assignment Feedback & Marks Dispatches</span>
+                <p className="text-slate-500 dark:text-slate-400 text-[11px]">Receive emails when an instructor grades your capstone</p>
+              </div>
             </label>
 
-            <label className="flex items-center gap-2.5 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={workshopReminders}
                 onChange={(e) => setWorkshopReminders(e.target.checked)}
-                className="rounded border-tyc-border text-tyc-green focus:ring-tyc-green"
+                className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500/20"
               />
-              <span className="text-tyc-text">Live Masterclass & Hackathon Kickoff Reminders</span>
+              <div>
+                <span className="font-bold text-slate-800 dark:text-slate-200">Live Workshop & Hackathon Reminders</span>
+                <p className="text-slate-500 dark:text-slate-400 text-[11px]">Get alerted 1 hour before scheduled masterclasses</p>
+              </div>
             </label>
 
-            <label className="flex items-center gap-2.5 cursor-pointer">
+            <label className="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
                 checked={jobAlerts}
                 onChange={(e) => setJobAlerts(e.target.checked)}
-                className="rounded border-tyc-border text-tyc-green focus:ring-tyc-green"
+                className="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500/20"
               />
-              <span className="text-tyc-text">Hiring Partner Matching Alerts (90%+ match)</span>
+              <div>
+                <span className="font-bold text-slate-800 dark:text-slate-200">Hiring Partner Matching Alerts</span>
+                <p className="text-slate-500 dark:text-slate-400 text-[11px]">Get alerted when your skills match a partner job opening</p>
+              </div>
             </label>
           </div>
         </Card>
 
-        <div className="flex justify-end">
+        {/* Card 4: Course Recommendations & Learning Preferences */}
+        <Card className="p-6 space-y-4 shadow-sm dark:shadow-xl">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-emerald-500" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">Personalized Course Recommendations</h3>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsOnboardingOpen(true)}
+              className="text-xs bg-emerald-50/60 dark:bg-emerald-950/40 border-emerald-500/40 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 shadow-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5 mr-1 text-emerald-500" />
+              Update Preferences & Retake Survey
+            </Button>
+          </div>
+
+          <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            Update your topics of interest, current skill level, and primary career goals. Our recommendation engine will recalculate and suggest tailored courses for your curriculum without affecting already completed courses.
+          </p>
+        </Card>
+
+        <div className="flex justify-end gap-3 pt-2">
           <Button type="submit" variant="primary" size="md" isLoading={isSaving}>
             <Save className="w-4 h-4 mr-1.5" />
-            Save Profile & Preferences
+            Save Profile Settings
           </Button>
         </div>
       </form>

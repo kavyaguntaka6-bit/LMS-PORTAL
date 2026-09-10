@@ -1,6 +1,23 @@
 // Core Types for Traya Yukti Core (TYC) LMS
 
-export type UserRole = 'student' | 'instructor' | 'admin' | 'superadmin';
+export type UserRole = 'owner' | 'admin' | 'instructor' | 'student' | 'superadmin';
+
+export interface StudentPreferences {
+  interests: string[];
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  goals: string[];
+  weeklyHours: string;
+  preferredFormat?: string;
+  careerPath?: string;
+  completedAt?: string;
+}
+
+export interface RecommendedCourseItem {
+  course: Course;
+  matchScore: number;
+  reason: string;
+  matchedInterests: string[];
+}
 
 export interface User {
   id: string;
@@ -8,6 +25,20 @@ export interface User {
   email: string;
   role: UserRole;
   avatar: string;
+  phone?: string;
+  college?: string;
+  branch?: string;
+  year?: string;
+  status?: 'active' | 'inactive';
+  accountStatus?: 'active' | 'suspended' | 'inactive';
+  organizationId?: string;
+  organizationName?: string;
+  department?: string;
+  assignedCourseIds?: string[];
+  permissions?: Permission[];
+  customPermissions?: Permission[];
+  createdAt?: string;
+  lastLogin?: string;
   careerGoal: string;
   educationLevel?: string;
   experienceLevel?: 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
@@ -24,6 +55,17 @@ export interface User {
   certificatesEarned: number;
   skills: SkillItem[];
   joinedDate: string;
+  assignedInstructorId?: string;
+  passwordHash?: string;
+  onboardingCompleted?: boolean;
+  preferences?: StudentPreferences;
+  auditInfo?: {
+    createdBy?: string;
+    lastPasswordReset?: string;
+    lastRoleModified?: string;
+    lastRoleModifiedBy?: string;
+    ipAddress?: string;
+  };
 }
 
 export interface SkillItem {
@@ -59,7 +101,14 @@ export interface Course {
   lessonsCount: number;
   modules: CourseModule[];
   whyThisCourse?: string;
-  status?: 'published' | 'draft' | 'archived';
+  status?: CourseStatus;
+  reviewStatus?: CourseReviewStatus;
+  reviewNotes?: string;
+  submittedAt?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  organizationId?: string;
+  department?: string;
   lastUpdated: string;
 }
 
@@ -369,3 +418,335 @@ export interface StudentOnboardingData {
   areasOfInterest: string[];
   weeklyHours: number;
 }
+
+export type ActivityType = 
+  | 'lesson_completed'
+  | 'project_started'
+  | 'project_submitted'
+  | 'project_reviewed'
+  | 'assignment_submitted'
+  | 'assignment_graded'
+  | 'quiz_passed'
+  | 'course_enrolled'
+  | 'course_completed'
+  | 'coding_challenge_solved'
+  | 'certificate_earned'
+  | 'profile_updated'
+  | 'login';
+
+export interface ActivityLog {
+  id: string;
+  userId: string;
+  userName: string;
+  userRole: UserRole;
+  activityType: ActivityType;
+  title: string;
+  description: string;
+  relatedId?: string;
+  relatedTitle?: string;
+  timestamp: string; // ISO string
+}
+
+export interface Assignment {
+  id: string;
+  courseId: string;
+  courseTitle: string;
+  instructorId: string;
+  instructorName: string;
+  title: string;
+  description: string;
+  dueDate: string;
+  totalMarks: number;
+  assignedStudentIds?: string[];
+  submissionsCount?: number;
+}
+
+export interface AssignmentSubmission {
+  id: string;
+  assignmentId: string;
+  assignmentTitle: string;
+  courseId: string;
+  courseTitle: string;
+  studentId: string;
+  studentName: string;
+  studentEmail?: string;
+  studentAvatar?: string;
+  content: string;
+  submissionUrl?: string;
+  submittedAt: string;
+  status: 'pending' | 'reviewed';
+  marksObtained?: number;
+  maxMarks: number;
+  feedback?: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+}
+
+// ==========================================
+// ENTERPRISE RBAC & GOVERNANCE TYPES
+// ==========================================
+
+export type CourseStatus = 'published' | 'draft' | 'archived' | 'submitted_for_review' | 'under_review' | 'changes_requested' | 'approved';
+export type CourseReviewStatus = 'draft' | 'submitted' | 'under_review' | 'changes_requested' | 'approved' | 'published' | 'rejected';
+
+export type ScopeLevel = 'FULL' | 'DEPARTMENT' | 'COURSE' | 'OWN' | 'VIEW_ONLY' | 'NO_ACCESS';
+
+// Permission Identifiers
+export type PlatformPermission = 
+  | 'platform:manage_settings'
+  | 'platform:manage_db'
+  | 'platform:manage_api'
+  | 'platform:manage_tenants'
+  | 'platform:view_environment';
+
+export type RBACPermission = 
+  | 'rbac:manage_roles'
+  | 'rbac:create_role'
+  | 'rbac:edit_role'
+  | 'rbac:delete_role'
+  | 'rbac:assign_permissions'
+  | 'rbac:override_permissions';
+
+export type UserManagementPermission =
+  | 'users:manage_admins'
+  | 'users:manage_instructors'
+  | 'users:manage_students'
+  | 'users:create'
+  | 'users:edit'
+  | 'users:suspend'
+  | 'users:activate'
+  | 'users:delete'
+  | 'users:reset_password'
+  | 'users:csv_import'
+  | 'users:manage_cohorts';
+
+export type CoursePermission =
+  | 'courses:create'
+  | 'courses:edit_own'
+  | 'courses:edit_all'
+  | 'courses:delete'
+  | 'courses:submit_review'
+  | 'courses:review_approve'
+  | 'courses:review_reject'
+  | 'courses:request_changes'
+  | 'courses:publish'
+  | 'courses:archive';
+
+export type AssessmentPermission =
+  | 'assignments:create'
+  | 'assignments:grade_own'
+  | 'assignments:grade_all'
+  | 'quizzes:manage';
+
+export type CareerPermission =
+  | 'career:view'
+  | 'career:post_job'
+  | 'career:approve_jobs'
+  | 'career:reject_jobs'
+  | 'career:audit_applications';
+
+export type FinancePermission =
+  | 'finance:manage_stripe'
+  | 'finance:manage_pricing'
+  | 'finance:view_global'
+  | 'finance:view_dept'
+  | 'finance:view_own_earnings'
+  | 'finance:approve_refunds'
+  | 'finance:monitor_payouts';
+
+export type CertificatePermission =
+  | 'certificates:configure_threshold'
+  | 'certificates:issue'
+  | 'certificates:revoke'
+  | 'certificates:audit';
+
+export type AnalyticsPermission =
+  | 'analytics:view_global'
+  | 'analytics:view_dept'
+  | 'analytics:view_course'
+  | 'analytics:view_own';
+
+export type SecurityPermission =
+  | 'security:view_logs'
+  | 'security:manage_sso'
+  | 'security:manage_rls'
+  | 'security:manage_sessions'
+  | 'security:data_recovery';
+
+export type AuditPermission =
+  | 'audit:view_global'
+  | 'audit:view_dept'
+  | 'audit:view_course'
+  | 'audit:export';
+
+export type ResourcePermission =
+  | 'resources:override_access'
+  | 'resources:view_datalab'
+  | 'resources:manage_datalab';
+
+export type LiveSessionPermission =
+  | 'live:schedule'
+  | 'live:host'
+  | 'live:moderate_discussions';
+
+export type Permission = 
+  | PlatformPermission
+  | RBACPermission
+  | UserManagementPermission
+  | CoursePermission
+  | AssessmentPermission
+  | CareerPermission
+  | FinancePermission
+  | CertificatePermission
+  | AnalyticsPermission
+  | SecurityPermission
+  | AuditPermission
+  | ResourcePermission
+  | LiveSessionPermission;
+
+export interface PermissionGroup {
+  name: string;
+  description: string;
+  permissions: {
+    id: Permission;
+    label: string;
+    description: string;
+    category: string;
+  }[];
+}
+
+export interface RoleDefinition {
+  id: string;
+  name: string;
+  description: string;
+  badge: string;
+  badgeColor: string;
+  isSystem: boolean; // Cannot delete core system roles
+  inheritsFrom?: UserRole;
+  scope: ScopeLevel;
+  permissions: Permission[];
+  userCount?: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Organization {
+  id: string;
+  name: string;
+  slug: string;
+  logo?: string;
+  tier: 'Starter' | 'Enterprise' | 'Academic' | 'Global Partner';
+  status: 'active' | 'inactive';
+  adminIds: string[];
+  departments: Department[];
+  createdAt: string;
+  maxStudents: number;
+  studentCount: number;
+}
+
+export interface Department {
+  id: string;
+  organizationId: string;
+  name: string;
+  headName: string;
+  headEmail: string;
+  studentCount: number;
+  courseCount: number;
+}
+
+export interface Cohort {
+  id: string;
+  organizationId: string;
+  departmentId?: string;
+  name: string;
+  code: string;
+  description: string;
+  assignedCourseIds: string[];
+  studentIds: string[];
+  startDate: string;
+  endDate: string;
+  status: 'active' | 'completed' | 'upcoming';
+}
+
+export interface ResourceAccessOverride {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  instructorId: string;
+  instructorName: string;
+  resourceId: string;
+  resourceTitle: string;
+  resourceType: 'datalab' | 'course' | 'masterclass' | 'coding_lab';
+  reason: string;
+  startDate: string;
+  expiryDate: string;
+  status: 'active' | 'expired' | 'revoked';
+  createdAt: string;
+}
+
+export interface RefundRequest {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  courseId: string;
+  courseTitle: string;
+  amount: number;
+  currency: 'INR' | 'USD';
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewNotes?: string;
+}
+
+export interface AuditLogEntry {
+  id: string;
+  userId: string;
+  userName: string;
+  userRole: UserRole;
+  userEmail: string;
+  organizationId?: string;
+  departmentId?: string;
+  action: 
+    | 'login'
+    | 'logout'
+    | 'failed_login'
+    | 'password_reset'
+    | 'role_change'
+    | 'permission_change'
+    | 'course_create'
+    | 'course_submit_review'
+    | 'course_approve'
+    | 'course_reject'
+    | 'course_publish'
+    | 'course_archive'
+    | 'course_delete'
+    | 'student_create'
+    | 'student_suspend'
+    | 'student_activate'
+    | 'student_csv_import'
+    | 'cohort_assign'
+    | 'certificate_issue'
+    | 'certificate_revoke'
+    | 'refund_approve'
+    | 'refund_reject'
+    | 'job_approve'
+    | 'job_reject'
+    | 'resource_override_grant'
+    | 'resource_override_revoke'
+    | 'system_config_change'
+    | 'sso_config_update';
+  target: string;
+  targetId?: string;
+  scope: ScopeLevel;
+  result: 'SUCCESS' | 'DENIED' | 'FAILED';
+  description: string;
+  metadata?: Record<string, any>;
+  ipAddress?: string;
+  timestamp: string;
+}
+
+

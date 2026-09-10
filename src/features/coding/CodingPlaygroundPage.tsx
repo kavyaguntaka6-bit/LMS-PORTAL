@@ -58,11 +58,11 @@ const PROBLEMS: PlaygroundProblem[] = [
     difficulty: 'Easy',
     topic: 'Arrays & Hash Maps',
     accuracyRate: 91.4,
-    description: `Given an array of integers \`nums\` and an integer \`target\`, return *indices of the two numbers such that they add up to \`target\`*.\n\nYou may assume that each input would have ***exactly one solution***, and you may not use the same element twice.\n\nYou can return the answer in any order.`,
+    description: `Given an array of integers \`nums\` and an integer \`target\`, return indices of the two numbers such that they add up to \`target\`.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice. You can return the answer in any order.`,
     examples: [
-      { input: 'nums = [2, 7, 11, 15], target = 9', output: '[0, 1]', explanation: 'Because nums[0] + nums[1] == 9, we return [0, 1].' },
-      { input: 'nums = [3, 2, 4], target = 6', output: '[1, 2]' },
-      { input: 'nums = [3, 3], target = 6', output: '[0, 1]' }
+      { input: 'nums = [2,7,11,15], target = 9', output: '[0,1]', explanation: 'Because nums[0] + nums[1] == 9, we return [0, 1].' },
+      { input: 'nums = [3,2,4], target = 6', output: '[1,2]' },
+      { input: 'nums = [3,3], target = 6', output: '[0,1]' }
     ],
     constraints: [
       '2 <= nums.length <= 10^4',
@@ -79,36 +79,33 @@ const PROBLEMS: PlaygroundProblem[] = [
 function twoSum(nums, target) {
   const map = new Map();
   for (let i = 0; i < nums.length; i++) {
-    const complement = target - nums[i];
-    if (map.has(complement)) {
-      return [map.get(complement), i];
+    const diff = target - nums[i];
+    if (map.has(diff)) {
+      return [map.get(diff), i];
     }
     map.set(nums[i], i);
   }
   return [];
 }`,
       python: `def twoSum(nums: list[int], target: int) -> list[int]:
-    lookup = {}
+    seen = {}
     for i, num in enumerate(nums):
         diff = target - num
-        if diff in lookup:
-            return [lookup[diff], i]
-        lookup[num] = i
+        if diff in seen:
+            return [seen[diff], i]
+        seen[num] = i
     return []`,
-      sql: `-- SQL Sandbox Query
-SELECT user_id, SUM(amount) AS total_spent
-FROM transactions
-WHERE status = 'completed'
-GROUP BY user_id
-HAVING SUM(amount) > 500
-ORDER BY total_spent DESC;`,
+      sql: `SELECT user_id, SUM(amount) as total_spent\nFROM transactions\nGROUP BY user_id\nHAVING SUM(amount) > 500\nORDER BY total_spent DESC;`,
       cpp: `class Solution {
 public:
     vector<int> twoSum(vector<int>& nums, int target) {
-        unordered_map<int, int> mp;
+        unordered_map<int, int> seen;
         for (int i = 0; i < nums.size(); i++) {
-            if (mp.count(target - nums[i])) return {mp[target - nums[i]], i};
-            mp[nums[i]] = i;
+            int diff = target - nums[i];
+            if (seen.find(diff) != seen.end()) {
+                return {seen[diff], i};
+            }
+            seen[nums[i]] = i;
         }
         return {};
     }
@@ -126,7 +123,7 @@ public:
     difficulty: 'Easy',
     topic: 'Stacks & Strings',
     accuracyRate: 88.2,
-    description: `Given a string \`s\` containing just the characters \`'('\`, \`')'\`, \`'{'\`, \`'}'\`, \`'['\` and \`']'\`, determine if the input string is valid.\n\nAn input string is valid if:\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.\n3. Every close bracket has a corresponding open bracket of the same type.`,
+    description: `Given a string \`s\` containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.\n\nAn input string is valid if:\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.\n3. Every close bracket has a corresponding open bracket of the same type.`,
     examples: [
       { input: 's = "()"', output: 'true' },
       { input: 's = "()[]{}"', output: 'true' },
@@ -144,26 +141,27 @@ public:
 function isValid(s) {
   const stack = [];
   const map = { ')': '(', '}': '{', ']': '[' };
-  for (const char of s) {
-    if (char in map) {
-      if (stack.pop() !== map[char]) return false;
-    } else {
+  for (let char of s) {
+    if (!map[char]) {
       stack.push(char);
+    } else if (stack.pop() !== map[char]) {
+      return false;
     }
   }
   return stack.length === 0;
 }`,
       python: `def isValid(s: str) -> bool:
     stack = []
-    pairs = {')': '(', '}': '{', ']': '['}
+    mapping = {')': '(', '}': '{', ']': '['}
     for char in s:
-        if char in pairs:
-            if not stack or stack.pop() != pairs[char]:
+        if char in mapping:
+            top = stack.pop() if stack else '#'
+            if mapping[char] != top:
                 return False
         else:
             stack.append(char)
-    return len(stack) == 0`,
-      sql: `SELECT * FROM syntax_validation_logs WHERE is_balanced = TRUE;`,
+    return not stack`,
+      sql: `SELECT email, COUNT(*) FROM users GROUP BY email HAVING COUNT(*) > 1;`,
       cpp: `class Solution {
 public:
     bool isValid(string s) {
@@ -193,8 +191,8 @@ public:
     title: 'Maximum Subarray (Kadane)',
     difficulty: 'Medium',
     topic: 'Dynamic Programming',
-    accuracyRate: 74.5,
-    description: `Given an integer array \`nums\`, find the subarray with the largest sum, and return *its sum*.\n\nA **subarray** is a contiguous non-empty sequence of elements within an array.`,
+    accuracyRate: 74.6,
+    description: `Given an integer array \`nums\`, find the subarray with the largest sum, and return its sum. A subarray is a contiguous non-empty sequence of elements within an array.`,
     examples: [
       { input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]', output: '6', explanation: 'The subarray [4,-1,2,1] has the largest sum 6.' },
       { input: 'nums = [1]', output: '1' },
@@ -264,8 +262,6 @@ export const CodingPlaygroundPage: React.FC = () => {
     totalTests: number;
   }>({ status: 'idle', output: '', runtimeMs: 0, testsPassed: 0, totalTests: problem.testCases.length });
 
-  const [aiDebugModalOpen, setAiDebugModalOpen] = useState(false);
-
   // Switch problem
   const handleSelectProblem = (probId: string) => {
     setActiveProblemId(probId);
@@ -278,43 +274,37 @@ export const CodingPlaygroundPage: React.FC = () => {
   // Switch language
   const handleSelectLanguage = (lang: 'javascript' | 'python' | 'sql' | 'cpp') => {
     setSelectedLanguage(lang);
-    setCode(problem.starters[lang] || '');
-    setRunResults({ status: 'idle', output: '', runtimeMs: 0, testsPassed: 0, totalTests: problem.testCases.length });
+    setCode(problem.starters[lang]);
   };
 
+  // Run in browser JavaScript sandbox
   const handleRunCode = () => {
     setIsRunning(true);
-    setRunResults({
-      status: 'running',
-      output: `Compiling and executing in TYC Sandbox environment (${selectedLanguage})...`,
-      runtimeMs: 0,
-      testsPassed: 0,
-      totalTests: problem.testCases.length
-    });
+    const startTime = performance.now();
 
     setTimeout(() => {
-      const startTime = performance.now();
-      let logs: string[] = [];
       let passedCount = 0;
+      const logs: string[] = [];
 
       if (selectedLanguage === 'javascript') {
         try {
-          // Real dynamic execution for JS
-          const cleanCode = code + `\nreturn ${problem.id === 'prob_1' ? 'twoSum' : problem.id === 'prob_2' ? 'isValid' : 'maxSubArray'};`;
-          const fn = new Function(cleanCode)();
+          const fnNameMatch = code.match(/function\s+([a-zA-Z0-9_$]+)/);
+          const fnName = fnNameMatch ? fnNameMatch[1] : 'twoSum';
+
+          const sandboxFn = new Function(`${code}\nreturn ${fnName};`)();
 
           problem.testCases.forEach((tc, idx) => {
             try {
-              const res = fn(...tc.input);
+              const res = sandboxFn(...tc.input);
               const isMatch = JSON.stringify(res) === JSON.stringify(tc.expected);
               if (isMatch) {
                 passedCount++;
-                logs.push(`✓ Test Case ${idx + 1} (${tc.label}): Output: ${JSON.stringify(res)} [PASSED]`);
+                logs.push(`✓ Test Case ${idx + 1} (${tc.label}): Passed (Result: ${JSON.stringify(res)})`);
               } else {
-                logs.push(`✗ Test Case ${idx + 1} (${tc.label}): Expected ${JSON.stringify(tc.expected)}, got ${JSON.stringify(res)} [FAILED]`);
+                logs.push(`✗ Test Case ${idx + 1} (${tc.label}): Failed (Expected: ${JSON.stringify(tc.expected)}, Got: ${JSON.stringify(res)})`);
               }
             } catch (err: any) {
-              logs.push(`✗ Test Case ${idx + 1} Exception: ${err.message}`);
+              logs.push(`✗ Test Case ${idx + 1}: Execution error - ${err.message}`);
             }
           });
         } catch (err: any) {
@@ -400,9 +390,9 @@ export const CodingPlaygroundPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-[90vh] flex flex-col bg-tyc-bg dark:bg-[#111412] transition-colors">
+    <div className="min-h-[90vh] flex flex-col bg-[#F8FAFC] dark:bg-[#05070A] text-slate-900 dark:text-white transition-colors duration-200">
       {/* Top Playground Action Bar */}
-      <div className="bg-white dark:bg-[#151916] border-b border-tyc-border dark:border-gray-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
+      <div className="bg-white/95 dark:bg-[#0D121F] border-b border-slate-200 dark:border-slate-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
         {/* Left: Problem Selector & Difficulty */}
         <div className="flex items-center gap-3">
           <Badge variant={problem.difficulty === 'Easy' ? 'green' : problem.difficulty === 'Medium' ? 'orange' : 'gray'} size="sm">
@@ -412,10 +402,10 @@ export const CodingPlaygroundPage: React.FC = () => {
           <select
             value={activeProblemId}
             onChange={(e) => handleSelectProblem(e.target.value)}
-            className="text-xs font-bold text-tyc-text dark:text-gray-100 bg-transparent border border-tyc-border dark:border-gray-700 rounded-lg px-2.5 py-1.5 focus:outline-none cursor-pointer"
+            className="text-xs font-bold text-slate-900 dark:text-white bg-slate-100 dark:bg-[#161F30] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 focus:outline-none cursor-pointer"
           >
             {PROBLEMS.map(p => (
-              <option key={p.id} value={p.id} className="dark:bg-[#191D1A]">
+              <option key={p.id} value={p.id} className="dark:bg-[#0D121F]">
                 {p.title} ({p.difficulty})
               </option>
             ))}
@@ -428,7 +418,7 @@ export const CodingPlaygroundPage: React.FC = () => {
           <select
             value={selectedLanguage}
             onChange={(e) => handleSelectLanguage(e.target.value as any)}
-            className="text-xs bg-tyc-bg dark:bg-gray-800 border border-tyc-border dark:border-gray-700 rounded-lg px-2.5 py-1.5 font-medium text-tyc-text dark:text-gray-200 focus:outline-none cursor-pointer"
+            className="text-xs bg-slate-100 dark:bg-[#161F30] border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-1.5 font-bold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer"
           >
             <option value="javascript">JavaScript (V8 Engine)</option>
             <option value="python">Python 3.12</option>
@@ -441,9 +431,9 @@ export const CodingPlaygroundPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={handleOpenAiHelper}
-            className="text-xs text-tyc-green dark:text-green-400 border-tyc-green/30 bg-tyc-green-soft dark:bg-green-950/60 hover:bg-tyc-green/20"
+            className="text-xs text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/60 hover:bg-emerald-100 dark:hover:bg-emerald-900/60"
           >
-            <Sparkles className="w-3.5 h-3.5 mr-1 text-tyc-green dark:text-green-400" />
+            <Sparkles className="w-3.5 h-3.5 mr-1 text-amber-500 animate-pulse" />
             Ask AI Copilot
           </Button>
 
@@ -451,7 +441,7 @@ export const CodingPlaygroundPage: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={handleReset}
-            className="text-xs dark:border-gray-700"
+            className="text-xs"
             title="Reset code"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -484,31 +474,31 @@ export const CodingPlaygroundPage: React.FC = () => {
       {/* Main Split Interface */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0">
         {/* Left: Problem Statement & Test Specs */}
-        <div className="lg:col-span-5 bg-white dark:bg-[#151916] border-r border-tyc-border dark:border-gray-800 p-6 overflow-y-auto max-h-[85vh] space-y-6">
+        <div className="lg:col-span-5 bg-white/90 dark:bg-[#080D17] border-r border-slate-200 dark:border-slate-800 p-6 overflow-y-auto max-h-[85vh] space-y-6">
           <div className="space-y-2">
-            <h1 className="text-lg font-bold text-tyc-text dark:text-white">{problem.title}</h1>
-            <div className="flex items-center gap-2 text-xs text-tyc-muted dark:text-gray-400">
-              <span>Topic: <strong className="text-tyc-text dark:text-gray-200">{problem.topic}</strong></span>
+            <h1 className="text-lg font-black text-slate-900 dark:text-white">{problem.title}</h1>
+            <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <span>Topic: <strong className="text-slate-900 dark:text-white font-bold">{problem.topic}</strong></span>
               <span>&bull;</span>
-              <span>Acceptance: <strong className="text-tyc-green dark:text-green-400">{problem.accuracyRate}%</strong></span>
+              <span>Acceptance: <strong className="text-emerald-600 dark:text-emerald-400 font-bold">{problem.accuracyRate}%</strong></span>
             </div>
           </div>
 
-          <div className="text-xs text-tyc-text dark:text-gray-300 leading-relaxed whitespace-pre-line bg-tyc-bg dark:bg-gray-800/60 p-4 rounded-xl border border-tyc-border dark:border-gray-700 font-sans">
+          <div className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed whitespace-pre-line bg-slate-50 dark:bg-[#0D121F] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 font-sans">
             {problem.description}
           </div>
 
           <div className="space-y-3">
-            <h4 className="text-xs font-bold text-tyc-text dark:text-gray-200 uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Example Test Cases
             </h4>
             <div className="space-y-2 text-xs">
               {problem.examples.map((ex, idx) => (
-                <div key={idx} className="p-3 bg-tyc-bg dark:bg-gray-800/60 rounded-lg border border-tyc-border dark:border-gray-700 font-mono text-[11px] space-y-1">
-                  <div><strong className="text-tyc-text dark:text-white">Input:</strong> {ex.input}</div>
-                  <div><strong className="text-tyc-green dark:text-green-400">Output:</strong> {ex.output}</div>
+                <div key={idx} className="p-3 bg-slate-50 dark:bg-[#0D121F] rounded-xl border border-slate-200 dark:border-slate-800 font-mono text-[11px] space-y-1">
+                  <div><strong className="text-slate-900 dark:text-white">Input:</strong> {ex.input}</div>
+                  <div><strong className="text-emerald-600 dark:text-emerald-400 font-bold">Output:</strong> {ex.output}</div>
                   {ex.explanation && (
-                    <div className="text-tyc-muted dark:text-gray-400 font-sans text-xs"><strong>Explanation:</strong> {ex.explanation}</div>
+                    <div className="text-slate-500 dark:text-slate-400 font-sans text-xs pt-0.5"><strong>Explanation:</strong> {ex.explanation}</div>
                   )}
                 </div>
               ))}
@@ -516,133 +506,55 @@ export const CodingPlaygroundPage: React.FC = () => {
           </div>
 
           <div className="space-y-2">
-            <h4 className="text-xs font-bold text-tyc-text dark:text-gray-200 uppercase tracking-wider">
+            <h4 className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-wider">
               Constraints & Edge Cases
             </h4>
-            <ul className="list-disc pl-4 space-y-1 text-xs text-tyc-muted dark:text-gray-400">
+            <ul className="list-disc pl-5 space-y-1 text-xs text-slate-600 dark:text-slate-400 font-mono text-[11px]">
               {problem.constraints.map((c, i) => (
-                <li key={i}><code>{c}</code></li>
+                <li key={i}>{c}</li>
               ))}
             </ul>
           </div>
         </div>
 
         {/* Right: Code Editor & Console Output */}
-        <div className="lg:col-span-7 flex flex-col bg-[#1E1E1E]">
-          {/* Editor Header */}
-          <div className="bg-[#252526] px-4 py-2 flex items-center justify-between text-xs text-gray-300 border-b border-gray-800">
-            <div className="flex items-center gap-2">
-              <Code2 className="w-4 h-4 text-tyc-green" />
-              <span className="font-mono font-medium">solution.{selectedLanguage === 'javascript' ? 'js' : selectedLanguage === 'python' ? 'py' : selectedLanguage === 'sql' ? 'sql' : 'cpp'}</span>
-            </div>
-            <span className="text-[11px] text-gray-400 font-mono flex items-center gap-2">
-              <span>UTF-8</span>
-              <span>&bull;</span>
-              <span>4 Spaces</span>
-            </span>
-          </div>
-
-          {/* Code Textarea with line numbers */}
-          <div className="flex-1 flex p-2 min-h-[360px] bg-[#1E1E1E]">
-            <div className="w-8 select-none text-right pr-3 font-mono text-xs text-gray-600 space-y-1 pt-1">
-              {[...Array(20)].map((_, i) => (
-                <div key={i}>{i + 1}</div>
-              ))}
+        <div className="lg:col-span-7 flex flex-col bg-[#0D1117] text-white">
+          {/* Editor Container */}
+          <div className="flex-1 min-h-[360px] p-4 font-mono text-xs flex flex-col">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-slate-400 text-[11px]">
+              <span>solution.{selectedLanguage === 'python' ? 'py' : selectedLanguage === 'sql' ? 'sql' : selectedLanguage === 'cpp' ? 'cpp' : 'js'}</span>
+              <span>UTF-8 &bull; Space: 2</span>
             </div>
             <textarea
               value={code}
               onChange={(e) => setCode(e.target.value)}
+              className="flex-1 w-full bg-transparent text-slate-200 resize-none font-mono text-xs focus:outline-none pt-3 leading-relaxed placeholder-slate-600"
               spellCheck={false}
-              className="flex-1 bg-transparent text-green-300 font-mono text-xs leading-relaxed focus:outline-none resize-none p-1 font-medium"
+              autoCapitalize="none"
+              autoComplete="off"
             />
           </div>
 
-          {/* Lower Test Bench & Console Panel */}
-          <div className="bg-[#181818] border-t border-gray-800 p-4 space-y-3">
-            <div className="flex items-center justify-between">
+          {/* Test Runner & Output Console */}
+          <div className="h-64 border-t border-slate-800 bg-[#080B12] flex flex-col">
+            <div className="flex items-center justify-between px-4 py-2 bg-[#05070A] border-b border-slate-800 text-xs">
               <div className="flex items-center gap-2">
-                <Terminal className="w-4 h-4 text-tyc-green" />
-                <span className="text-xs font-bold text-gray-200">Execution Console</span>
+                <Terminal className="w-3.5 h-3.5 text-slate-400" />
+                <span className="font-bold text-slate-300">Test Execution Console</span>
               </div>
               {runResults.runtimeMs > 0 && (
-                <span className="text-[11px] text-green-400 font-mono flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> Runtime: {runResults.runtimeMs}ms
+                <span className="text-[11px] text-emerald-400 font-mono">
+                  Execution Time: {runResults.runtimeMs}ms
                 </span>
               )}
             </div>
 
-            {/* Test Case Selection Pills */}
-            <div className="flex items-center gap-2">
-              {problem.testCases.map((t, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveTestTab(idx)}
-                  className={`px-3 py-1 rounded-md text-xs font-mono transition-colors ${
-                    activeTestTab === idx
-                      ? 'bg-gray-700 text-white font-bold'
-                      : 'bg-gray-900 text-gray-400 hover:text-gray-200'
-                  }`}
-                >
-                  Case {idx + 1}
-                </button>
-              ))}
-            </div>
-
-            {/* Active Test Case Detail */}
-            <div className="p-2.5 bg-black/40 rounded-lg text-xs font-mono text-gray-300 border border-gray-800/80">
-              <span className="text-gray-500">Input: </span>
-              <span className="text-gray-200">{problem.testCases[activeTestTab]?.label}</span>
-              <span className="mx-2 text-gray-600">|</span>
-              <span className="text-gray-500">Expected: </span>
-              <span className="text-green-400">{JSON.stringify(problem.testCases[activeTestTab]?.expected)}</span>
-            </div>
-
-            {/* Console Output Window */}
-            <div className="bg-black/80 rounded-xl p-3.5 font-mono text-xs border border-gray-800 min-h-[100px] text-gray-300 overflow-x-auto">
-              {runResults.status === 'idle' ? (
-                <span className="text-gray-500">Click &ldquo;Run Test Cases&rdquo; to execute solution in the browser engine.</span>
-              ) : (
-                <pre className={`whitespace-pre-line ${runResults.status === 'error' ? 'text-red-400' : 'text-green-400'}`}>
-                  {runResults.output}
-                </pre>
-              )}
+            <div className="flex-1 p-4 font-mono text-xs overflow-y-auto text-slate-300 leading-relaxed whitespace-pre-wrap">
+              {runResults.output || 'Press "Run Test Cases" to execute sandbox tests against your solution.'}
             </div>
           </div>
         </div>
       </div>
-
-      {/* AI Debugger Modal */}
-      <Modal
-        isOpen={aiDebugModalOpen}
-        onClose={() => setAiDebugModalOpen(false)}
-        title="TYC AI Code Diagnostic"
-        description="Instant static analysis and runtime optimization feedback"
-        maxWidth="lg"
-      >
-        <div className="space-y-4 text-xs leading-relaxed">
-          <div className="p-3 bg-tyc-green-soft/40 dark:bg-green-950/40 border border-tyc-green/20 rounded-xl space-y-1">
-            <span className="font-bold text-tyc-green dark:text-green-400">✓ Optimal Time Complexity Achieved (O(N))</span>
-            <p className="text-tyc-muted dark:text-gray-400">
-              Your solution operates in linear time with O(N) auxiliary space.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <h4 className="font-bold text-tyc-text dark:text-white">Key Edge Cases Considered:</h4>
-            <ul className="list-disc pl-4 space-y-1 text-tyc-muted dark:text-gray-400">
-              <li>Duplicate values with distinct indices.</li>
-              <li>Negative numbers and zero boundaries.</li>
-              <li>Complement matching earlier elements without re-using current item.</li>
-            </ul>
-          </div>
-
-          <div className="flex justify-end pt-2">
-            <Button variant="primary" size="sm" onClick={() => setAiDebugModalOpen(false)}>
-              Got it, thanks!
-            </Button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 };

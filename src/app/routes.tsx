@@ -2,22 +2,41 @@ import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { AdminLayout } from '../components/layout/AdminLayout';
+import { InstructorLayout } from '../components/layout/InstructorLayout';
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 
-// Animated Route Loading Skeleton
+import { useAuth } from '../context/AuthContext';
+
+// Animated Route Loading Fallback
 const RouteLoadingFallback: React.FC = () => (
-  <div className="min-h-[60vh] flex flex-col items-center justify-center space-y-4 p-8">
-    <div className="relative">
-      <div className="w-12 h-12 rounded-2xl bg-tyc-green/10 dark:bg-tyc-green/20 border-2 border-tyc-green/40 flex items-center justify-center animate-pulse">
-        <span className="text-tyc-green dark:text-green-400 font-bold text-sm">TYC</span>
+  <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-5 p-8 select-none">
+    <div className="relative flex items-center justify-center">
+      {/* Outer Gyro Ring */}
+      <div className="w-20 h-20 rounded-full border-2 border-dashed border-emerald-500/40 animate-spin" style={{ animationDuration: '6s' }} />
+      {/* Inner Glowing Ring */}
+      <div className="absolute w-14 h-14 rounded-full border-2 border-cyan-400/60 border-t-transparent animate-spin" style={{ animationDuration: '1.5s' }} />
+      {/* Core Center Badge */}
+      <div className="absolute w-10 h-10 rounded-full bg-slate-900 border border-emerald-400/50 flex items-center justify-center shadow-[0_0_20px_rgba(16,185,129,0.4)] overflow-hidden">
+        <img src="/tyc-logo-second.png" alt="TYC" className="w-full h-full object-cover" />
       </div>
-      <div className="absolute inset-0 rounded-2xl border-2 border-tyc-green border-t-transparent animate-spin" />
     </div>
     <div className="text-center space-y-1">
-      <p className="text-xs font-semibold text-tyc-text dark:text-gray-200">Loading module environment...</p>
-      <p className="text-[11px] text-tyc-muted dark:text-gray-500">Traya Yukti Core Platform</p>
+      <div className="flex items-center justify-center gap-1.5">
+        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+        <p className="text-xs font-bold text-slate-800 dark:text-white tracking-wide uppercase">Initializing Workspace...</p>
+      </div>
+      <p className="text-[11px] font-medium text-slate-400 dark:text-slate-500">Trata Yukthi Core Platform</p>
     </div>
   </div>
 );
+
+// Gate root path: require login before accessing website
+const RootRouteGate: React.FC = () => {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <RouteLoadingFallback />;
+  if (!user) return <Navigate to="/login" replace />;
+  return <LandingPage />;
+};
 
 // Dynamic Lazy Imports for Optimized Bundle Chunks
 const LandingPage = lazy(() => import('../features/landing/LandingPage').then(m => ({ default: m.LandingPage })));
@@ -42,55 +61,278 @@ const HackathonsPage = lazy(() => import('../features/hackathons/HackathonsPage'
 const CommunityPage = lazy(() => import('../features/community/CommunityPage').then(m => ({ default: m.CommunityPage })));
 const SettingsPage = lazy(() => import('../features/settings/SettingsPage').then(m => ({ default: m.SettingsPage })));
 
-// Admin Lazy Pages
+// Instructor Lazy Pages
+const InstructorDashboardPage = lazy(() => import('../features/instructor/InstructorDashboardPage').then(m => ({ default: m.InstructorDashboardPage })));
+
+// Admin & Super Admin Lazy Pages
 const AdminDashboardPage = lazy(() => import('../features/admin/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage })));
+const SuperAdminDashboardPage = lazy(() => import('../features/admin/SuperAdminDashboardPage').then(m => ({ default: m.SuperAdminDashboardPage })));
 const CourseCMSPage = lazy(() => import('../features/admin/CourseCMSPage').then(m => ({ default: m.CourseCMSPage })));
 const StudentsManagerPage = lazy(() => import('../features/admin/StudentsManagerPage').then(m => ({ default: m.StudentsManagerPage })));
+const UnauthorizedPage = lazy(() => import('../features/auth/UnauthorizedPage').then(m => ({ default: m.UnauthorizedPage })));
 
 export const AppRoutes: React.FC = () => {
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
       <Routes>
-        {/* Student & Public Routes inside AppLayout */}
+        {/* Dedicated Auth Routes (Standalone Master Layout) */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+        {/* Student & Ecosystem Routes inside AppLayout */}
         <Route element={<AppLayout />}>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/dashboard" element={<StudentDashboardPage />} />
-          <Route path="/courses" element={<CourseCatalogPage />} />
-          <Route path="/courses/:id" element={<CourseDetailsPage />} />
-          <Route path="/learn/:courseId/:lessonId" element={<LessonPlayerPage />} />
-          <Route path="/learn/:courseId" element={<LessonPlayerPage />} />
-          <Route path="/learning-paths" element={<LearningPathsPage />} />
-          <Route path="/practice" element={<PracticePage />} />
-          <Route path="/coding" element={<CodingPlaygroundPage />} />
-          <Route path="/projects" element={<ProjectsCatalogPage />} />
-          <Route path="/projects/:id" element={<ProjectDetailsPage />} />
-          <Route path="/certificates" element={<CertificatesPage />} />
-          <Route path="/portfolio" element={<StudentPortfolioPage />} />
-          <Route path="/portfolio/:id" element={<StudentPortfolioPage />} />
-          <Route path="/career" element={<CareerCenterPage />} />
-          <Route path="/internships" element={<CareerCenterPage />} />
-          <Route path="/jobs" element={<CareerCenterPage />} />
-          <Route path="/workshops" element={<WorkshopsPage />} />
-          <Route path="/hackathons" element={<HackathonsPage />} />
-          <Route path="/community" element={<CommunityPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="/profile" element={<SettingsPage />} />
+          <Route path="/" element={<RootRouteGate />} />
+          <Route
+            path="/courses"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <CourseCatalogPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/courses/:id"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <CourseDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/learning-paths"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <LearningPathsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/workshops"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <WorkshopsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/hackathons"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <HackathonsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/community"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <CommunityPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/certificates"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <CertificatesPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Student Routes */}
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <OnboardingPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <StudentDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <StudentDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/profile"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <StudentDashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/learn/:courseId/:lessonId"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <LessonPlayerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/learn/:courseId"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <LessonPlayerPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/practice"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <PracticePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/coding"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <CodingPlaygroundPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/projects"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <ProjectsCatalogPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/projects/:id"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <ProjectDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/portfolio"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <StudentPortfolioPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/portfolio/:id"
+            element={<StudentPortfolioPage />}
+          />
+          <Route
+            path="/career"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <CareerCenterPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/internships"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <CareerCenterPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/jobs"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <CareerCenterPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <SettingsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute allowedRoles={['student', 'instructor', 'admin', 'owner']}>
+                <StudentDashboardPage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
-        {/* Admin Experience inside AdminLayout */}
-        <Route path="/admin" element={<AdminLayout />}>
+        {/* Protected Instructor Experience inside InstructorLayout (Faculty Tier) */}
+        <Route
+          path="/instructor"
+          element={
+            <ProtectedRoute allowedRoles={['instructor', 'admin', 'superadmin', 'owner']}>
+              <InstructorLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<InstructorDashboardPage />} />
+          <Route path="submissions" element={<InstructorDashboardPage />} />
+          <Route path="students" element={<InstructorDashboardPage />} />
+          <Route path="overrides" element={<InstructorDashboardPage />} />
+          <Route path="live" element={<InstructorDashboardPage />} />
+        </Route>
+
+        {/* Protected Admin Experience inside AdminLayout (Operations Tier) */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={['admin', 'superadmin', 'owner']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<AdminDashboardPage />} />
           <Route path="courses" element={<CourseCMSPage />} />
           <Route path="students" element={<StudentsManagerPage />} />
+          <Route path="cohorts" element={<StudentsManagerPage />} />
           <Route path="instructors" element={<StudentsManagerPage />} />
+          <Route path="career" element={<AdminDashboardPage />} />
+          <Route path="certificates" element={<AdminDashboardPage />} />
+          <Route path="finance" element={<AdminDashboardPage />} />
           <Route path="analytics" element={<AdminDashboardPage />} />
           <Route path="projects" element={<CourseCMSPage />} />
-          <Route path="career" element={<CourseCMSPage />} />
         </Route>
+
+        {/* Protected Super Admin Experience inside AdminLayout (Level 1 Root Clearance ONLY) */}
+        <Route
+          path="/super-admin"
+          element={
+            <ProtectedRoute allowedRoles={['superadmin', 'owner']}>
+              <AdminLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route index element={<SuperAdminDashboardPage />} />
+          <Route path="rbac" element={<SuperAdminDashboardPage />} />
+          <Route path="users" element={<SuperAdminDashboardPage />} />
+          <Route path="audit" element={<SuperAdminDashboardPage />} />
+          <Route path="security" element={<SuperAdminDashboardPage />} />
+          <Route path="finance" element={<SuperAdminDashboardPage />} />
+          <Route path="settings" element={<SuperAdminDashboardPage />} />
+          <Route path="logs" element={<SuperAdminDashboardPage />} />
+        </Route>
+
+        {/* Dedicated 403 Unauthorized Access Denied Route */}
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
         {/* Catch-all fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

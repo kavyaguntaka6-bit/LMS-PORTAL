@@ -3,7 +3,7 @@ import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: 'indigo' | 'green' | 'orange' | 'gray' | 'outline' | 'dark';
+  variant?: 'green' | 'orange' | 'ai' | 'indigo' | 'gray' | 'outline' | 'dark' | 'yellow' | 'purple' | 'rainbow' | 'cyan' | 'rose';
   size?: 'sm' | 'md';
   dot?: boolean;
 }
@@ -16,29 +16,52 @@ export const Badge: React.FC<BadgeProps> = ({
   className,
   ...props
 }) => {
-  const baseStyles = 'inline-flex items-center font-semibold rounded-full transition-colors';
+  const baseStyles = 'inline-flex items-center font-bold rounded-full transition-all duration-150';
 
   const sizeStyles = {
-    sm: 'text-[11px] px-2 py-0.5 gap-1',
-    md: 'text-xs px-2.5 py-1 gap-1.5',
+    sm: 'text-[10px] sm:text-[11px] px-2.5 py-0.5 gap-1.5',
+    md: 'text-xs px-3 py-1 gap-1.5',
   };
 
   const variantStyles = {
-    indigo: 'bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800/60',
-    green: 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60',
-    orange: 'bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800/60',
-    gray: 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700',
-    outline: 'bg-white dark:bg-[#111827] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700',
-    dark: 'bg-slate-900 dark:bg-slate-800 text-white border border-slate-800 shadow-sm',
+    // Primary Brand Green
+    green: 'bg-[#ECFDF5] text-[#047857] border border-[#A7F3D0] dark:bg-[#10B981]/15 dark:text-[#34D399] dark:border-[#10B981]/30',
+    
+    // Action Orange
+    orange: 'bg-[#FFF7ED] text-[#C2410C] border border-[#FED7AA] dark:bg-[#FF8A1F]/15 dark:text-[#FB923C] dark:border-[#FF8A1F]/30',
+    
+    // AI Dedicated Badge
+    ai: 'bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE] dark:bg-[#6366F1]/15 dark:text-[#818CF8] dark:border-[#6366F1]/30',
+    indigo: 'bg-[#EEF2FF] text-[#4F46E5] border border-[#C7D2FE] dark:bg-[#6366F1]/15 dark:text-[#818CF8] dark:border-[#6366F1]/30',
+    
+    // Topic Colors
+    cyan: 'bg-cyan-50 text-cyan-800 border border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border-cyan-800/80',
+    rose: 'bg-rose-50 text-rose-800 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/80',
+
+    // Clean Slate Neutral
+    gray: 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-[#1E293B] dark:text-slate-300 dark:border-slate-700',
+    outline: 'bg-transparent text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:border-slate-400 dark:hover:border-slate-500',
+    dark: 'bg-[#0F172A] text-white border border-slate-800 shadow-xs',
+    
+    // Legacy mapping aliases
+    yellow: 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/80',
+    purple: 'bg-purple-50 text-purple-700 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-300 dark:border-purple-800/80',
+    rainbow: 'bg-[#FFF7ED] text-[#C2410C] border border-[#FED7AA] dark:bg-[#FF8A1F]/15 dark:text-[#FB923C] dark:border-[#FF8A1F]/30',
   };
 
   const dotColors = {
-    indigo: 'bg-indigo-500 animate-pulse',
-    green: 'bg-emerald-500 animate-pulse',
-    orange: 'bg-amber-500 animate-pulse',
+    green: 'bg-[#10B981]',
+    orange: 'bg-[#FF8A1F]',
+    ai: 'bg-[#6366F1]',
+    indigo: 'bg-[#6366F1]',
+    cyan: 'bg-cyan-500',
+    rose: 'bg-rose-500',
     gray: 'bg-slate-400',
-    outline: 'bg-indigo-500',
-    dark: 'bg-emerald-400 animate-pulse',
+    outline: 'bg-[#10B981]',
+    dark: 'bg-[#10B981]',
+    yellow: 'bg-amber-500',
+    purple: 'bg-purple-500',
+    rainbow: 'bg-[#FF8A1F]',
   };
 
   return (

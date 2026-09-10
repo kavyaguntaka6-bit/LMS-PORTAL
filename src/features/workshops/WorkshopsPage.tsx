@@ -5,9 +5,7 @@ import {
   Calendar,
   Clock,
   Users,
-  Video,
   CheckCircle2,
-  Sparkles,
   ArrowRight,
   BookOpen
 } from 'lucide-react';
@@ -33,10 +31,10 @@ export const WorkshopsPage: React.FC = () => {
       {/* Header */}
       <div className="space-y-2">
         <Breadcrumb items={[{ label: 'Live Masterclasses' }]} />
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-tyc-text tracking-tight">
+        <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
           Live Engineering Masterclasses
         </h1>
-        <p className="text-xs sm:text-sm text-tyc-muted max-w-2xl">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl">
           Interactive weekend deep-dives with principal staff engineers breaking down production systems architecture and real-time live coding.
         </p>
       </div>
@@ -44,53 +42,53 @@ export const WorkshopsPage: React.FC = () => {
       {/* Workshop Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {workshops.map((ws) => (
-          <Card key={ws.id} className="p-6 space-y-5 shadow-subtle border-tyc-border flex flex-col justify-between">
+          <Card key={ws.id} className="p-6 space-y-5 shadow-sm dark:shadow-xl flex flex-col justify-between">
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <Badge variant="green" size="sm">Live Session</Badge>
-                <span className="text-xs font-bold text-tyc-green">Free for TYC Members</span>
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Free for TYC Members</span>
               </div>
 
-              <h3 className="text-lg font-bold text-tyc-text leading-snug">{ws.title}</h3>
-              <p className="text-xs text-tyc-muted leading-relaxed">{ws.description}</p>
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white leading-snug">{ws.title}</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{ws.description}</p>
 
               {/* Speaker */}
-              <div className="flex items-center gap-3 p-3 bg-tyc-bg rounded-xl border border-tyc-border">
+              <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-[#161F30] rounded-2xl border border-slate-200 dark:border-slate-800">
                 <img
                   src={ws.instructorAvatar}
                   alt={ws.instructorName}
-                  className="w-10 h-10 rounded-full object-cover border border-tyc-border"
+                  className="w-10 h-10 rounded-xl object-cover border border-slate-200 dark:border-slate-700"
                 />
                 <div>
-                  <div className="text-xs font-bold text-tyc-text">{ws.instructorName}</div>
-                  <div className="text-[11px] text-tyc-muted">{ws.instructorRole}</div>
+                  <div className="text-xs font-bold text-slate-900 dark:text-white">{ws.instructorName}</div>
+                  <div className="text-[11px] text-slate-500 dark:text-slate-400">{ws.instructorRole}</div>
                 </div>
               </div>
 
               {/* Meta details */}
-              <div className="grid grid-cols-2 gap-3 text-xs text-tyc-muted">
+              <div className="grid grid-cols-2 gap-3 text-xs text-slate-500 dark:text-slate-400">
                 <div className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-tyc-orange" />
+                  <Calendar className="w-3.5 h-3.5 text-orange-500" />
                   <span>{ws.date}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-tyc-green" />
+                  <Clock className="w-3.5 h-3.5 text-emerald-500" />
                   <span>{ws.time}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Users className="w-3.5 h-3.5 text-blue-600" />
+                  <Users className="w-3.5 h-3.5 text-blue-500" />
                   <span>{ws.registeredCount} / {ws.capacity} Seats Reserved</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <BookOpen className="w-3.5 h-3.5 text-purple-600" />
+                  <BookOpen className="w-3.5 h-3.5 text-purple-500" />
                   <span>{ws.resourcesCount} Code Assets Included</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-tyc-border flex items-center justify-between">
+            <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
               {ws.isRegistered ? (
-                <div className="flex items-center gap-2 text-xs font-bold text-tyc-green">
+                <div className="flex items-center gap-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>You are Registered! Access Link Sent.</span>
                 </div>
