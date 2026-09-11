@@ -68,7 +68,7 @@ export const CourseDetailsPage: React.FC = () => {
     );
   }
 
-  const isEnrolled = user?.enrolledCourseIds.includes(course.id);
+  const isEnrolled = !!user?.enrolledCourseIds?.includes(course.id);
 
   const toggleModule = (modId: string) => {
     setOpenModules(prev => ({ ...prev, [modId]: !prev[modId] }));

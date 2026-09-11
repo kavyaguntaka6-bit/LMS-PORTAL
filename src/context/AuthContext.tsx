@@ -59,30 +59,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (isClerkSignedIn && clerkUser) {
       const email = clerkUser.primaryEmailAddress?.emailAddress || '';
       const cleanEmail = email.toLowerCase();
-      
-      // Strict access enforcement: Only hcskolluru@gmail.com is authorized
-      if (cleanEmail !== 'hcskolluru@gmail.com') {
-        setUser(null);
-        setIsLoading(false);
-        return;
-      }
+      const isSuperAdminEmail = cleanEmail === 'hcskolluru@gmail.com';
+      const userRole: UserRole = isSuperAdminEmail ? 'superadmin' : 'student';
 
       const unifiedUser: User = {
         id: clerkUser.id,
-        name: clerkUser.fullName || clerkUser.firstName || 'HCS Kolluru (Super Admin)',
-        email: 'hcskolluru@gmail.com',
-        role: 'superadmin',
+        name: clerkUser.fullName || clerkUser.firstName || (isSuperAdminEmail ? 'HCS Kolluru (Super Admin)' : 'Student Learner'),
+        email: cleanEmail || (isSuperAdminEmail ? 'hcskolluru@gmail.com' : 'student@tyc.dev'),
+        role: userRole,
         avatar: clerkUser.imageUrl || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-        careerGoal: 'Chief Executive & Platform Super Administrator',
-        streakDays: 60,
-        longestStreak: 90,
-        weeklyHoursSpent: 45,
+        careerGoal: isSuperAdminEmail ? 'Chief Executive & Platform Super Administrator' : 'Full Stack & AI Developer',
+        streakDays: isSuperAdminEmail ? 60 : 14,
+        longestStreak: isSuperAdminEmail ? 90 : 28,
+        weeklyHoursSpent: isSuperAdminEmail ? 45 : 18.5,
         enrolledCourseIds: ['crs_1', 'crs_2', 'crs_3', 'crs_4', 'crs_5'],
         completedCourseIds: ['crs_1', 'crs_2', 'crs_3'],
         completedLessonIds: ['les_1_1', 'les_1_2'],
-        certificatesEarned: 5,
+        certificatesEarned: isSuperAdminEmail ? 5 : 2,
         skills: [],
-        joinedDate: 'Jan 2021',
+        joinedDate: 'Jan 2026',
+        onboardingCompleted: true,
       };
       setUser(unifiedUser);
       setIsLoading(false);
@@ -91,15 +87,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       authService
         .getCurrentUser()
         .then((u) => {
-          if (u && u.email.toLowerCase() !== 'hcskolluru@gmail.com') {
-            // Invalidate unauthorized cached user session
-            localStorage.removeItem('tyc_currentUser');
-            setUser(null);
-          } else {
-            setUser(u);
-            if (u) {
-              fetchActivities(u.id);
-            }
+          setUser(u);
+          if (u) {
+            fetchActivities(u.id);
           }
           setIsLoading(false);
         })

@@ -133,7 +133,7 @@ export const StudentDashboardPage: React.FC = () => {
   const [selectedAvatar, setSelectedAvatar] = useState<string>(user?.avatar || PRESET_AVATARS[0].url);
   const [isSavingAvatar, setIsSavingAvatar] = useState(false);
 
-  const enrolled = (courses || []).filter(c => user?.enrolledCourseIds.includes(c.id));
+  const enrolled = (courses || []).filter((c) => user?.enrolledCourseIds?.includes(c.id));
   const fallbackEnrolled = enrolled.length > 0 ? enrolled : (courses || []).slice(0, 2);
 
   // 7-day streak activity mock

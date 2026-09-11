@@ -78,36 +78,36 @@ export const Navbar: React.FC = () => {
     !isAdminView &&
     (user?.role === 'instructor' || location.pathname.startsWith('/instructor'));
 
-  // Super Admin Navigation Items (Tailored specifically for Super Admin)
+  // Super Admin Navigation Items (Concise, polished & responsive)
   const superAdminNavItems = [
-    { label: 'Executive Terminal', href: '/super-admin', icon: Crown },
-    { label: 'RBAC & Roles', href: '/super-admin/rbac', icon: KeyRound },
-    { label: 'User & Admin Ops', href: '/super-admin/users', icon: Users },
-    { label: 'Global Audit Logs', href: '/super-admin/audit', icon: ScrollText },
-    { label: 'Security & SSO', href: '/super-admin/security', icon: ShieldCheck },
-    { label: 'Global Finance', href: '/super-admin/finance', icon: DollarSign },
-    { label: 'Platform Settings', href: '/super-admin/settings', icon: Sliders },
+    { label: 'Terminal', href: '/super-admin', icon: Crown },
+    { label: 'RBAC', href: '/super-admin/rbac', icon: KeyRound },
+    { label: 'Users', href: '/super-admin/users', icon: Users },
+    { label: 'Audit', href: '/super-admin/audit', icon: ScrollText },
+    { label: 'Security', href: '/super-admin/security', icon: ShieldCheck },
+    { label: 'Finance', href: '/super-admin/finance', icon: DollarSign },
+    { label: 'Settings', href: '/super-admin/settings', icon: Sliders },
   ];
 
   // Admin Navigation Items
   const adminNavItems = [
-    { label: 'Department Overview', href: '/admin', icon: LayoutDashboard },
+    { label: 'Overview', href: '/admin', icon: LayoutDashboard },
     { label: 'Course CMS', href: '/admin/courses', icon: BookOpen },
-    { label: 'Student Management', href: '/admin/students', icon: Users },
-    { label: 'Cohorts & Batches', href: '/admin/cohorts', icon: Layers },
-    { label: 'Career Board', href: '/admin/career', icon: Briefcase },
+    { label: 'Students', href: '/admin/students', icon: Users },
+    { label: 'Cohorts', href: '/admin/cohorts', icon: Layers },
+    { label: 'Careers', href: '/admin/career', icon: Briefcase },
     { label: 'Certificates', href: '/admin/certificates', icon: Award },
-    { label: 'Department Finance', href: '/admin/finance', icon: DollarSign },
-    { label: 'Analytics & Reports', href: '/admin/analytics', icon: BarChart3 },
+    { label: 'Finance', href: '/admin/finance', icon: DollarSign },
+    { label: 'Analytics', href: '/admin/analytics', icon: BarChart3 },
   ];
 
   // Instructor Navigation Items
   const instructorNavItems = [
     { label: 'Faculty Hub', href: '/instructor', icon: LayoutDashboard },
-    { label: 'Submissions & Grading', href: '/instructor/submissions', icon: FileCheck },
-    { label: 'Assigned Students', href: '/instructor/students', icon: Users },
-    { label: 'Resource Overrides', href: '/instructor/overrides', icon: KeyRound },
-    { label: 'Course Catalog', href: '/courses', icon: BookOpen },
+    { label: 'Submissions', href: '/instructor/submissions', icon: FileCheck },
+    { label: 'Students', href: '/instructor/students', icon: Users },
+    { label: 'Overrides', href: '/instructor/overrides', icon: KeyRound },
+    { label: 'Courses', href: '/courses', icon: BookOpen },
   ];
 
   // Student Navigation Items
@@ -118,7 +118,7 @@ export const Navbar: React.FC = () => {
     { label: 'Coding Lab', href: '/coding', icon: Terminal },
     { label: 'Projects', href: '/projects', icon: FolderGit2 },
     { label: 'Community', href: '/community', icon: Users2 },
-    { label: 'Documentation', href: '/learning-paths', icon: FileText },
+    { label: 'Docs', href: '/learning-paths', icon: FileText },
   ];
 
   // Select current navigation set based on role context
@@ -151,41 +151,47 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-4 z-40 px-4 sm:px-6 lg:px-8 w-full max-w-[1440px] mx-auto transition-all duration-300">
+    <header className="sticky top-3 z-40 px-3 sm:px-6 lg:px-8 w-full max-w-[1480px] mx-auto transition-all duration-300">
       {/* Subdued Elegant Border Frame */}
-      <div className="tyc-rainbow-border transition-all duration-300">
-        {/* Inner Clean White / Dark Obsidian Container */}
-        <div className="bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-xl rounded-[32px] px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.04)] transition-colors duration-200">
+      <div className={clsx("transition-all duration-300", isSuperAdminView ? "p-[1px] rounded-[34px] bg-gradient-to-r from-amber-500/40 via-yellow-400/30 to-amber-600/40 shadow-[0_0_25px_rgba(245,158,11,0.12)]" : "tyc-rainbow-border")}>
+        {/* Inner Container */}
+        <div className={clsx(
+          "backdrop-blur-xl rounded-[32px] px-3.5 sm:px-6 py-2 sm:py-2.5 flex items-center justify-between gap-2.5 transition-colors duration-200",
+          isSuperAdminView
+            ? "bg-slate-950/95 dark:bg-[#070B14]/95 border border-amber-500/20 shadow-[0_8px_30px_rgba(0,0,0,0.35)]"
+            : "bg-white/95 dark:bg-[#0F172A]/95 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.04)]"
+        )}>
           
           {/* LEFT: TYC Logo & Role Badge */}
-          <div className="relative flex items-center gap-2.5 shrink-0">
+          <div className="relative flex items-center gap-2 sm:gap-3 shrink-0">
             <BrandLogo size="md" href={brandHomeHref} />
             
             {/* Dynamic Role Badge next to brand */}
             {isSuperAdminView && (
-              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30">
-                <Crown className="w-3 h-3 text-amber-500" />
-                <span>Super Admin</span>
-              </span>
+              <div className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-500/15 text-amber-400 border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.2)]">
+                <Crown className="w-3.5 h-3.5 text-amber-400" />
+                <span className="tracking-wide">Root Terminal</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse" />
+              </div>
             )}
             {isAdminView && (
-              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30">
-                <ShieldCheck className="w-3 h-3 text-cyan-500" />
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/15 text-cyan-400 border border-cyan-500/30">
+                <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Admin Console</span>
               </span>
             )}
             {isInstructorView && (
-              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30">
-                <GraduationCap className="w-3 h-3 text-purple-500" />
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                <GraduationCap className="w-3.5 h-3.5 text-purple-400" />
                 <span>Instructor</span>
               </span>
             )}
 
-            <div className="hidden xl:block h-8 w-[1px] bg-slate-200 dark:bg-slate-700 ml-1" />
+            <div className="hidden xl:block h-6 w-[1px] bg-slate-200 dark:bg-slate-800 ml-0.5" />
           </div>
 
           {/* CENTER: Navigation items tailored to Super Admin / Admin / Student */}
-          <nav className="hidden lg:flex items-center gap-3.5 xl:gap-5 2xl:gap-6">
+          <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2.5 2xl:gap-3.5">
             {navItems.map((item) => {
               const active = isNavActive(item.href);
               const Icon = item.icon;
@@ -194,71 +200,40 @@ export const Navbar: React.FC = () => {
                 <Link
                   key={item.label}
                   to={item.href}
-                  className="flex flex-col items-center justify-center px-1.5 py-0.5 group relative transition-all duration-200"
+                  className={clsx(
+                    "flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 rounded-xl transition-all duration-200 group relative",
+                    active
+                      ? isSuperAdminView
+                        ? "bg-amber-500/15 text-amber-300 border border-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.2)]"
+                        : isAdminView
+                        ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"
+                        : isInstructorView
+                        ? "bg-purple-500/15 text-purple-400 border border-purple-500/30"
+                        : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                      : isSuperAdminView
+                      ? "text-slate-400 hover:text-amber-300 hover:bg-white/5"
+                      : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60"
+                  )}
                 >
-                  {/* Icon with Role Accent */}
-                  <div
-                    className={clsx(
-                      'transition-all duration-200 transform group-hover:scale-110 mb-1',
-                      active
-                        ? isSuperAdminView
-                          ? 'text-amber-500 scale-105'
-                          : isAdminView
-                          ? 'text-cyan-500 scale-105'
-                          : isInstructorView
-                          ? 'text-purple-500 scale-105'
-                          : 'text-[#10B981] scale-105'
-                        : isSuperAdminView
-                        ? 'text-slate-500 dark:text-slate-400 group-hover:text-amber-600 dark:group-hover:text-amber-400'
+                  <Icon className={clsx(
+                    "w-4 h-4 transition-transform group-hover:scale-110 shrink-0",
+                    active
+                      ? isSuperAdminView
+                        ? "text-amber-400"
                         : isAdminView
-                        ? 'text-slate-500 dark:text-slate-400 group-hover:text-cyan-600 dark:group-hover:text-cyan-400'
+                        ? "text-cyan-400"
                         : isInstructorView
-                        ? 'text-slate-500 dark:text-slate-400 group-hover:text-purple-600 dark:group-hover:text-purple-400'
-                        : 'text-slate-500 dark:text-slate-400 group-hover:text-[#047857] dark:group-hover:text-[#10B981]'
-                    )}
-                  >
-                    <Icon className="w-[18px] h-[18px] stroke-[2]" />
-                  </div>
+                        ? "text-purple-400"
+                        : "text-[#10B981]"
+                      : "text-slate-400 group-hover:text-current"
+                  )} />
 
-                  {/* Nav Label */}
-                  <span
-                    className={clsx(
-                      'text-[11.5px] tracking-tight transition-colors whitespace-nowrap',
-                      active
-                        ? isSuperAdminView
-                          ? 'font-bold text-amber-600 dark:text-amber-400'
-                          : isAdminView
-                          ? 'font-bold text-cyan-600 dark:text-cyan-400'
-                          : isInstructorView
-                          ? 'font-bold text-purple-600 dark:text-purple-400'
-                          : 'font-bold text-[#10B981]'
-                        : isSuperAdminView
-                        ? 'text-slate-600 dark:text-slate-300 font-medium group-hover:text-amber-600 dark:group-hover:text-amber-400'
-                        : isAdminView
-                        ? 'text-slate-600 dark:text-slate-300 font-medium group-hover:text-cyan-600 dark:group-hover:text-cyan-400'
-                        : isInstructorView
-                        ? 'text-slate-600 dark:text-slate-300 font-medium group-hover:text-purple-600 dark:group-hover:text-purple-400'
-                        : 'text-slate-600 dark:text-slate-300 font-medium group-hover:text-[#047857] dark:group-hover:text-[#10B981]'
-                    )}
-                  >
+                  <span className={clsx(
+                    "text-xs tracking-tight transition-colors whitespace-nowrap",
+                    active ? "font-bold" : "font-medium"
+                  )}>
                     {item.label}
                   </span>
-
-                  {/* Active Indicator Underline Bar */}
-                  {active && (
-                    <div
-                      className={clsx(
-                        'h-[2px] w-6 rounded-full mt-1',
-                        isSuperAdminView
-                          ? 'bg-amber-500 shadow-[0_1px_4px_rgba(245,158,11,0.5)]'
-                          : isAdminView
-                          ? 'bg-cyan-500 shadow-[0_1px_4px_rgba(6,182,212,0.5)]'
-                          : isInstructorView
-                          ? 'bg-purple-500 shadow-[0_1px_4px_rgba(168,85,247,0.5)]'
-                          : 'bg-[#10B981] shadow-[0_1px_4px_rgba(16,185,129,0.4)]'
-                      )}
-                    />
-                  )}
                 </Link>
               );
             })}

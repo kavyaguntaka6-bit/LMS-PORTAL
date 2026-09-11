@@ -19,17 +19,17 @@ interface TYCCharacterProps {
   onLogoClick?: () => void;
 }
 
-// Map phase directly to the original animated boy images
+// Map phase directly to the boy images, defaulting to the new artwork
 const phaseImageMap: Record<CharacterPhase, string> = {
-  idle: '/character/idle.jpg',
-  'email-focus': '/character/email-typing.jpg',
-  'email-typing': '/character/email-typing.jpg',
-  'email-valid': '/character/email-valid.jpg',
-  'email-invalid': '/character/email-invalid.jpg',
-  'password-focus': '/character/password-typing.jpg',
-  'password-typing': '/character/password-typing.jpg',
-  'password-valid': '/character/password-valid.jpg',
-  'login-success': '/character/login-success.jpg',
+  idle: '/signin/tyc-boy-scene.jpg',
+  'email-focus': '/signin/tyc-boy-scene.jpg',
+  'email-typing': '/signin/tyc-boy-scene.jpg',
+  'email-valid': '/signin/tyc-boy-scene.jpg',
+  'email-invalid': '/signin/tyc-boy-scene.jpg',
+  'password-focus': '/signin/tyc-boy-scene.jpg',
+  'password-typing': '/signin/tyc-boy-scene.jpg',
+  'password-valid': '/signin/tyc-boy-scene.jpg',
+  'login-success': '/signin/tyc-boy-scene.jpg',
 };
 
 export const TYCCharacter: React.FC<TYCCharacterProps> = ({

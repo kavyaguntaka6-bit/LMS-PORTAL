@@ -71,6 +71,8 @@ const CourseCMSPage = lazy(() => import('../features/admin/CourseCMSPage').then(
 const StudentsManagerPage = lazy(() => import('../features/admin/StudentsManagerPage').then(m => ({ default: m.StudentsManagerPage })));
 const UnauthorizedPage = lazy(() => import('../features/auth/UnauthorizedPage').then(m => ({ default: m.UnauthorizedPage })));
 
+import { AuthenticateWithRedirectCallback } from '@clerk/react';
+
 export const AppRoutes: React.FC = () => {
   return (
     <Suspense fallback={<RouteLoadingFallback />}>
@@ -79,6 +81,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/sso-callback" element={<AuthenticateWithRedirectCallback signInForceRedirectUrl="/dashboard" signUpForceRedirectUrl="/onboarding" />} />
 
         {/* Student & Ecosystem Routes inside AppLayout */}
         <Route element={<AppLayout />}>
